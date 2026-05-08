@@ -1,0 +1,53 @@
+{
+  "$comment": "Project-scoped settings for Claude Code. Hooks enforce the quality gates. See https://code.claude.com/docs for the schema.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|str_replace|create_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/guard-paths.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/run-gates.sh",
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm install)",
+      "Bash(npm test *)",
+      "Bash(npx vitest *)",
+      "Bash(git diff*)",
+      "Bash(git status)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(node *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(mkdir -p *)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(npm publish*)",
+      "Bash(npm audit fix --force)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl * | sh*)",
+      "Bash(curl * | bash*)"
+    ]
+  }
+}
