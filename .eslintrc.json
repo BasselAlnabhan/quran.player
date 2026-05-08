@@ -29,5 +29,5 @@
     "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }],
     "import/no-default-export": "off"
   },
-  "ignorePatterns": ["dist", "node_modules", "src/data/quran.json", "*.config.ts", "*.config.js"]
+  "ignorePatterns": ["dist", "coverage", "node_modules", "src/data/quran.json", "*.config.ts", "*.config.js"]
 }
