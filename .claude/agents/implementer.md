@@ -49,6 +49,27 @@ it, do not `.skip` it, do not change its assertion to pass trivially. If a
 lint rule is genuinely wrong for your case, raise it for discussion; don't
 disable it inline.
 
+```markdown
+## Review-loop iteration
+
+When you're invoked to address a review, you'll be given a path like
+`docs/reviews/task-<N>-round-<R>.md`. Treat that file as your task list:
+
+1. Read the entire review file. Address every Critical, Must-fix, and any
+   Should-fix the user explicitly asked for.
+2. Do not address Should-fixes the user did NOT ask for unless they're
+   trivially adjacent to a Must-fix you're already touching. Note any
+   you skip in your final report.
+3. Do not address Test gaps unless asked — the user may route those to
+   the test-author subagent instead.
+4. Run the gates yourself before reporting done.
+5. In your "DONE" report, list each review item by its file:line and a
+   one-line "fix:" note. This makes the next review round fast.
+
+After your fix, the user will re-invoke the reviewer for round R+1. The
+loop continues until the user says "approved" / "next task" / "no more
+issues" or the reviewer returns APPROVED on its own.
+
 ## Forbidden
 
 - `any` (use `unknown` and narrow).

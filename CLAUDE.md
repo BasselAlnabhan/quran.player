@@ -168,15 +168,33 @@ quiet.
 
 ## Workflow
 
-1. **Plan first.** For any non-trivial task, the planner subagent produces a
-   short task breakdown with acceptance criteria. User approves before code is
-   written.
-2. **Implement against the plan.** Reference the task by ID in commit messages.
-3. **Tests live in the same change.** No "we'll add tests later." If a task
-   genuinely can't be tested (e.g. a config change), say so explicitly.
-4. **Reviewer subagent runs before declaring done.** It's read-only and checks
-   against the acceptance criteria from the plan, not vibes.
-5. **Small commits.** If a diff is over ~300 lines, that's a smell — split it.
+Each task moves through this loop:
+
+1. **Plan.** Planner subagent produces a numbered task breakdown with
+   acceptance criteria. User approves before any code is written.
+2. **Implement.** Implementer takes one task, writes code + tests in the
+   same change, runs gates, reports done.
+3. **Review (round 1).** Reviewer subagent runs `git diff` against HEAD
+   (the user has NOT committed yet), runs all gates, writes a versioned
+   review file to `docs/reviews/task-<N>-round-<R>.md`. The review lists
+   only issues to address — no positive findings.
+4. **Decide.** User reads the review file and decides which findings the
+   implementer should address (or says "no points to fix, continue").
+5. **Fix.** Implementer addresses the chosen items, reports done.
+6. **Review (round 2, 3, …).** Loop back to step 3 with `R` incremented.
+   Old review files are never overwritten — the full audit trail stays
+   in the repo.
+7. **Move on.** Only when the user explicitly says to proceed (or the
+   reviewer returns APPROVED with no items the user wants addressed) does
+   the next task start. The user commits the change at this point.
+
+The reviewer never advances past the user. It writes the file, summarizes
+in chat, stops. The implementer never starts the next task on its own.
+
+### Review files
+
+`docs/reviews/task-<N>-round-<R>.md` — one file per review round per task.
+Versioned, never overwritten. They are the project's quality-audit log.
 
 ## Decision log
 
