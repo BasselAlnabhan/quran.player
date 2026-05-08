@@ -1,12 +1,7 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
 
-// React Testing Library doesn't auto-cleanup with Vitest the way it does
-// with Jest. Without this, components leak between tests.
-afterEach(() => {
-  cleanup();
-});
+// @testing-library/react 16.x auto-cleans after each test in Vitest via its
+// own afterEach hook — no manual cleanup() call needed here.
 
 // jsdom doesn't implement matchMedia. The reader uses it for
 // prefers-reduced-motion, so stub it here.

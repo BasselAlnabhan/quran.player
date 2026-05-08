@@ -1,0 +1,67 @@
+/* Light/dark colour tokens — used throughout the app via var(). */
+:root {
+  --color-bg: #ffffff;
+  --color-fg: #0f172a;
+  --color-muted: #64748b;
+  --color-accent: #1d4ed8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f172a;
+    --color-fg: #f1f5f9;
+    --color-muted: #94a3b8;
+    --color-accent: #60a5fa;
+  }
+}
+
+/* Minimal reset — preserve box model sanity across browsers. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* RTL-aware: individual Arabic elements set dir="rtl"; body stays LTR for
+     UI chrome so button labels and page structure read left-to-right. */
+  font-size: 100%;
+}
+
+/* Only enable smooth scrolling when the user has not requested reduced motion.
+   Defaults to no animation for users who haven't set a preference, which is the
+   safer default for vestibular-sensitive users. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  /* System Arabic font stack — no web font fetch required. */
+  font-family:
+    'Geeza Pro',
+    'Arabic Typesetting',
+    'Traditional Arabic',
+    system-ui,
+    sans-serif;
+  line-height: 1.6;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible focus ring for keyboard navigation (AA-compliant). */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove default focus ring for pointer users who don't need it. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
