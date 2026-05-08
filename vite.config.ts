@@ -57,6 +57,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
+    // Node 24 + worker_threads has a cold-start race condition in Vitest 1.6.x
+    // where workers can fail to initialize before test collection runs.
+    // forks (child_process) is more stable than threads on Windows + Node 24.
+    pool: 'forks',
     coverage: {
       provider: 'v8',
       include: ['src/lib/**/*.ts', 'src/**/*.{ts,tsx}'],

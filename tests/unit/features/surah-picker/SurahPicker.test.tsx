@@ -144,36 +144,38 @@ describe('App — surah picker integration', () => {
     expect(document.getElementById('app-shell')).toBeInTheDocument();
   });
 
-  it('selecting a surah hides the picker and shows the reader placeholder', async () => {
+  it('selecting a surah hides the picker and shows the reader view', async () => {
     const user = userEvent.setup();
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
     render(<App />);
 
     // Click the first surah button (surah 1).
-    const buttons = screen.getAllByRole('button');
-    await user.click(buttons[0]!);
+    const pickerButtons = screen.getAllByRole('button');
+    await user.click(pickerButtons[0]!);
 
     await waitFor(() => {
-      expect(screen.queryAllByRole('button')).toHaveLength(0);
-      expect(screen.getByTestId('reader-placeholder')).toBeInTheDocument();
-      expect(screen.getByTestId('reader-placeholder').textContent).toBe(
-        'Surah 1',
-      );
+      // ReaderView renders an RTL Arabic text block and a back button.
+      expect(document.querySelector('[dir="rtl"][lang="ar"]')).not.toBeNull();
+      expect(
+        screen.getByRole('button', { name: /back to surah list/i }),
+      ).toBeInTheDocument();
     });
   });
 
-  it('reader placeholder shows the correct surah number after selecting surah 7', async () => {
+  it('selecting surah 7 shows the reader view for surah 7', async () => {
     const user = userEvent.setup();
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
     render(<App />);
 
-    const buttons = screen.getAllByRole('button');
-    await user.click(buttons[6]!); // surah 7 is index 6
+    const pickerButtons = screen.getAllByRole('button');
+    await user.click(pickerButtons[6]!); // surah 7 is index 6
 
     await waitFor(() => {
-      expect(screen.getByTestId('reader-placeholder').textContent).toBe(
-        'Surah 7',
-      );
+      // ReaderView for any valid surah shows the RTL block and back button.
+      expect(document.querySelector('[dir="rtl"][lang="ar"]')).not.toBeNull();
+      expect(
+        screen.getByRole('button', { name: /back to surah list/i }),
+      ).toBeInTheDocument();
     });
   });
 });

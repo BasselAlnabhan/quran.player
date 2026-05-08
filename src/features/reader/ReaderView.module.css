@@ -1,0 +1,54 @@
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+.backButton {
+  background: none;
+  border: 1px solid var(--color-muted);
+  border-radius: 6px;
+  color: var(--color-fg);
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 1rem 0 2rem;
+  padding: 0.5rem 1rem;
+  /* min 44px tap target per WCAG 2.5.5 */
+  min-height: 44px;
+}
+
+.backButton:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  border-color: var(--color-accent);
+}
+
+.ayahBlock {
+  /* font-size satisfies the ≥1.25rem acceptance criterion */
+  font-size: 1.5rem;
+  /* Generous line-height for Arabic multi-glyph stacking */
+  line-height: 2;
+  /* Right-to-left continuous prose — all ayahs in one paragraph */
+  text-align: right;
+}
+
+.ayahNumber {
+  /* Slightly smaller and muted so it doesn't compete with Quranic text */
+  font-size: 0.85em;
+  color: var(--color-muted);
+  /* Non-breaking space prevents the marker from orphaning at line start */
+  white-space: nowrap;
+  /* Keep numbers in LTR order inside the RTL flow */
+  unicode-bidi: embed;
+  direction: ltr;
+}
+
+.status,
+.error {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.error {
+  color: var(--color-error);
+}
