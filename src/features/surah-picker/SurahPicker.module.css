@@ -1,0 +1,60 @@
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.item {
+  width: 100%;
+  /* No intrinsic styling from the UA button reset below. */
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-muted);
+  cursor: pointer;
+  color: var(--color-fg);
+  /* min 44px tap target per WCAG 2.5.5 */
+  min-height: 44px;
+  padding: 0.75rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.item:hover {
+  background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+/* The global :focus-visible rule handles the ring; add a slight radius here
+   to keep it aligned with the button shape. */
+.item:focus-visible {
+  border-radius: 4px;
+}
+
+.arabicName {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.englishName {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.loading,
+.error {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.error {
+  color: #dc2626;
+}
