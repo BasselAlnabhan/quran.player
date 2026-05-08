@@ -1,19 +1,68 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { afterEach, describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Quran } from '@/lib/types';
 import realQuranData from '@/data/quran.json';
-// vi.mock is hoisted by Vitest so this import correctly receives the mocked version.
+// vi.mock calls are hoisted by Vitest so imports below receive the mocked versions.
 import { useQuranData } from '@/hooks/useQuranData';
+import { createScrollEngine } from '@/lib/scroll-engine';
 import ReaderView from '@/features/reader/ReaderView';
 
 vi.mock('@/hooks/useQuranData');
 
+// Mock the scroll engine so ScrollControls inside ReaderView doesn't try to
+// construct a real rAF-driven engine during the test.
+vi.mock('@/lib/scroll-engine', () => ({
+  createScrollEngine: vi.fn(),
+}));
+
 const quranData = realQuranData as Quran;
 const mockUseQuranData = vi.mocked(useQuranData);
+const mockCreateScrollEngine = vi.mocked(createScrollEngine);
+
+type EngineMock = {
+  _isRunning: boolean;
+  start: ReturnType<typeof vi.fn<[], void>>;
+  stop: ReturnType<typeof vi.fn<[], void>>;
+  setSpeed: ReturnType<typeof vi.fn<[number], void>>;
+  isRunning: ReturnType<typeof vi.fn<[], boolean>>;
+  destroy: ReturnType<typeof vi.fn<[], void>>;
+};
+
+function makeEngineMock(): EngineMock {
+  let _isRunning = false;
+  const mock = {
+    _isRunning,
+    start: vi.fn(() => {
+      _isRunning = true;
+      mock._isRunning = true;
+    }),
+    stop: vi.fn(() => {
+      _isRunning = false;
+      mock._isRunning = false;
+    }),
+    setSpeed: vi.fn(),
+    isRunning: vi.fn(() => _isRunning),
+    destroy: vi.fn(),
+  };
+  return mock;
+}
 
 beforeEach(() => {
   mockUseQuranData.mockReset();
+  mockCreateScrollEngine.mockReturnValue(makeEngineMock());
+
+  // Stub rAF so ScrollControls' engine constructor doesn't fail in jsdom.
+  vi.stubGlobal('requestAnimationFrame', vi.fn((cb: FrameRequestCallback) => {
+    setTimeout(() => cb(performance.now()), 16);
+    return 0;
+  }));
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 // ---------------------------------------------------------------------------
@@ -119,5 +168,37 @@ describe('ReaderView — back button', () => {
     render(<ReaderView surahNumber={1} onBack={vi.fn()} />);
     const backButton = screen.getByRole('button', { name: /back to surah list/i });
     expect(backButton.tagName).toBe('BUTTON');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ScrollControls integration — both the back button and scroll controls render
+// ---------------------------------------------------------------------------
+
+describe('ReaderView — ScrollControls integration', () => {
+  it('renders scroll controls alongside the back button in a valid ReaderView', () => {
+    mockUseQuranData.mockReturnValue({
+      data: {
+        surahs: [
+          {
+            number: 1,
+            name: 'الفاتحة',
+            englishName: 'Al-Fatiha',
+            ayahs: [{ number: 1, text: 'بِسْمِ ٱللَّهِ' }],
+          },
+        ],
+      },
+      error: undefined,
+    });
+
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} />);
+
+    // The back button must be present.
+    expect(screen.getByRole('button', { name: /back to surah list/i })).toBeInTheDocument();
+
+    // ScrollControls must also be rendered inside the reader.
+    expect(
+      screen.getByRole('button', { name: /start auto-scroll|pause auto-scroll/i }),
+    ).toBeInTheDocument();
   });
 });

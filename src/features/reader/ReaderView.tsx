@@ -1,5 +1,6 @@
 import { useQuranData } from '@/hooks/useQuranData';
 import { getSurah } from '@/lib/quran';
+import ScrollControls from './ScrollControls';
 import styles from './ReaderView.module.css';
 
 type Props = {
@@ -64,6 +65,7 @@ export default function ReaderView({ surahNumber, onBack }: Props) {
           </span>
         ))}
       </p>
+      <ScrollControls />
     </div>
   );
 }
