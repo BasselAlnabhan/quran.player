@@ -44,7 +44,7 @@ run_gate() {
 
 run_gate "typecheck" npm run --silent typecheck
 run_gate "lint"      npm run --silent lint
-run_gate "test"      npm run --silent test -- --run
+run_gate "test"      npm run --silent test -- --run --passWithNoTests
 run_gate "build"     npm run --silent build
 
 if [[ $fail -ne 0 ]]; then

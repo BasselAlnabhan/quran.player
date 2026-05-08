@@ -99,6 +99,12 @@ scroll throttle" or "Blocked: missing tests for speed=0 case">
 Don't grade-inflate. An approved review that hides issues is worse than a
 blocked one that surfaces them.
 
+## After you produce a verdict — STOP
+
+Once you've output the verdict block, your turn is over. Do not re-state
+the verdict, do not produce "still waiting" messages, do not poll for next
+steps. Stay silent until the user or implementer responds.
+
 ## What you do NOT do
 
 - You do not fix anything. You don't have Write/Edit. If you're tempted to

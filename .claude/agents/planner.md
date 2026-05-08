@@ -55,6 +55,12 @@ End with a single line:
   tests. Don't create a "Task N: write tests" — that's how tests get skipped.
 - **Order matters.** Earlier tasks should not depend on later ones. If two
   tasks are truly independent, say so — the implementer may parallelize.
+- **The scaffold may have bugs.** If the existing config files (tsconfig,
+  eslintrc, vite.config) won't pass the gates as-is, fold the fixes into
+  Task 1's scope rather than creating a separate "fix scaffold" task or
+  asking the user. Treat "make the existing scaffold pass all gates" as
+  implicit prerequisite work for Task 1.
+  
 - **Stay in scope.** If the brief drifts past v1 scope from CLAUDE.md, name
   it in "Out of scope" and offer to revisit after MVP.
 
@@ -65,6 +71,13 @@ End with a single line:
 - Don't create the plan and start implementing — stop after the plan.
 - Don't pad with motherhood statements ("we should follow best practices").
   The conventions live in CLAUDE.md; reference them, don't restate them.
+
+## After you produce a plan — STOP
+
+Once you've output the plan and the "Ready to proceed?" line, your turn is
+over. Do not re-announce that you're waiting. Do not re-summarize the plan.
+Do not produce status updates like "Still awaiting your decision." Stay
+silent until the user replies. One response per user turn, no exceptions.
 
 ## When to push back
 
