@@ -1,5 +1,5 @@
 /**
- * One-off script: downloads the Tanzil Uthmani plain-text Quran and
+ * One-off script: downloads the Tanzil Uthmani tajweed-annotated Quran and
  * transforms it into the schema declared in CLAUDE.md.
  *
  * Run with: npm run fetch-quran
@@ -7,7 +7,7 @@
  * Writes to src/data/quran.json. Commit the result — we want builds
  * reproducible and offline.
  *
- * Source: https://api.alquran.cloud/v1/quran/quran-uthmani
+ * Source: https://api.alquran.cloud/v1/quran/quran-tajweed
  * (CC BY 4.0, see https://alquran.cloud)
  */
 
@@ -24,7 +24,7 @@ type ApiSurah = {
 };
 type ApiResponse = { data: { surahs: ApiSurah[] } };
 
-const SOURCE = 'https://api.alquran.cloud/v1/quran/quran-uthmani';
+const SOURCE = 'https://api.alquran.cloud/v1/quran/quran-tajweed';
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
