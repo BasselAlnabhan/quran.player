@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { clearBookmark, loadBookmark, saveBookmark } from '@/lib/bookmark';
 
 describe('bookmark', () => {
@@ -8,6 +8,10 @@ describe('bookmark', () => {
   });
 
   describe('saveBookmark', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
     it('writes a JSON-parseable string to localStorage under the qr:bookmark key', () => {
       saveBookmark({ surahNumber: 2, scrollY: 300 });
       const raw = localStorage.getItem('qr:bookmark');
@@ -22,6 +26,13 @@ describe('bookmark', () => {
       const raw = localStorage.getItem('qr:bookmark');
       const parsed: unknown = JSON.parse(raw!);
       expect(parsed).toMatchObject({ surahNumber: 5, scrollY: 1200 });
+    });
+
+    it('does not propagate errors when localStorage.setItem throws', () => {
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('quota exceeded');
+      });
+      expect(() => saveBookmark({ surahNumber: 1, scrollY: 0 })).not.toThrow();
     });
   });
 

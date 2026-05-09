@@ -20,6 +20,7 @@ pnpm-debug.log*
 
 # Coverage
 coverage/
+coverage-out/
 
 # Tests
 *.tsbuildinfo
