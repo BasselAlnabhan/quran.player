@@ -4,6 +4,7 @@ import ReaderView from '@/features/reader/ReaderView';
 import SettingsPanel from '@/components/settings/SettingsPanel';
 import { loadBookmark, saveBookmark } from '@/lib/bookmark';
 import type { Bookmark } from '@/lib/bookmark';
+import { useSettings } from '@/hooks/useSettings';
 import styles from './App.module.css';
 
 const DEBOUNCE_MS = 500;
@@ -22,6 +23,7 @@ export default function App() {
   );
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { settings, setTextSize } = useSettings();
 
   // Holds the debounce timer ID so we can cancel it on unmount.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -96,6 +98,7 @@ export default function App() {
         <ReaderView
           surahNumber={selectedSurah}
           onBack={handleBack}
+          textSizeRem={settings.textSizeRem}
         />
       )}
       <button
@@ -109,6 +112,8 @@ export default function App() {
       <SettingsPanel
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        textSizeRem={settings.textSizeRem}
+        onTextSizeChange={setTextSize}
       />
     </div>
   );

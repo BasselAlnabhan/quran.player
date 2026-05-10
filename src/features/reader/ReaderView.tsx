@@ -7,9 +7,10 @@ import styles from './ReaderView.module.css';
 type Props = {
   surahNumber: number;
   onBack: () => void;
+  textSizeRem: number;
 };
 
-export default function ReaderView({ surahNumber, onBack }: Props) {
+export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) {
   const { data, error } = useQuranData();
 
   if (error) {
@@ -55,8 +56,10 @@ export default function ReaderView({ surahNumber, onBack }: Props) {
       <button type="button" className={styles.backButton} onClick={onBack}>
         Back to surah list
       </button>
-      {/* dir and lang on the text block so auto-scroll engine and AT see the RTL context */}
-      <p className={styles.ayahBlock} dir="rtl" lang="ar">
+      {/* dir and lang on the text block so auto-scroll engine and AT see the RTL context.
+          textSizeRem is applied as inline style so it overrides the CSS default immediately
+          without CSS variable plumbing. */}
+      <p className={styles.ayahBlock} dir="rtl" lang="ar" style={{ fontSize: `${textSizeRem}rem` }}>
         {surah.ayahs.map((ayah) => (
           <span key={ayah.number} data-testid="ayah">
             <TajweedAyah text={ayah.text} />

@@ -1,13 +1,23 @@
 import { useEffect, useRef } from 'react';
 import styles from './SettingsPanel.module.css';
 
+const TEXT_SIZE_MIN = 1.0;
+const TEXT_SIZE_MAX = 2.5;
+const TEXT_SIZE_STEP = 0.125;
+
 type Props = {
   open: boolean;
   onClose: () => void;
-  children?: React.ReactNode;
+  textSizeRem: number;
+  onTextSizeChange: (rem: number) => void;
 };
 
-export default function SettingsPanel({ open, onClose, children }: Props) {
+export default function SettingsPanel({
+  open,
+  onClose,
+  textSizeRem,
+  onTextSizeChange,
+}: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -38,6 +48,24 @@ export default function SettingsPanel({ open, onClose, children }: Props) {
     if (e.target === dialogRef.current) onClose();
   }
 
+  // Round to 3 decimals then strip trailing zeros via numeric coercion.
+  // Always show at least one decimal place so "1rem" becomes "1.0rem".
+  function formatTextSize(rem: number): string {
+    const trimmed = parseFloat(rem.toFixed(3));
+    return `${Number.isInteger(trimmed) ? trimmed.toFixed(1) : trimmed}rem`;
+  }
+
+  // Round to 3 decimal places to guard against any accumulated float drift.
+  function handleDecrease() {
+    if (textSizeRem <= TEXT_SIZE_MIN) return;
+    onTextSizeChange(Math.round((textSizeRem - TEXT_SIZE_STEP) * 1000) / 1000);
+  }
+
+  function handleIncrease() {
+    if (textSizeRem >= TEXT_SIZE_MAX) return;
+    onTextSizeChange(Math.round((textSizeRem + TEXT_SIZE_STEP) * 1000) / 1000);
+  }
+
   return (
     <dialog
       ref={dialogRef}
@@ -60,7 +88,35 @@ export default function SettingsPanel({ open, onClose, children }: Props) {
             &#x2715;
           </button>
         </header>
-        <div className={styles.content}>{children}</div>
+        <div className={styles.content}>
+          <div className={styles.controlRow}>
+            <span className={styles.controlLabel}>Text size</span>
+            {/* aria-live so screen readers announce the value change after each tap */}
+            <span className={styles.controlValue} aria-live="polite">
+              {formatTextSize(textSizeRem)}
+            </span>
+            <div className={styles.controlButtons}>
+              <button
+                type="button"
+                className={styles.stepButton}
+                aria-label="Decrease text size"
+                disabled={textSizeRem <= TEXT_SIZE_MIN}
+                onClick={handleDecrease}
+              >
+                &#x2212;
+              </button>
+              <button
+                type="button"
+                className={styles.stepButton}
+                aria-label="Increase text size"
+                disabled={textSizeRem >= TEXT_SIZE_MAX}
+                onClick={handleIncrease}
+              >
+                &#x2B;
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </dialog>
   );
