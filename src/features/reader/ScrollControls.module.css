@@ -33,24 +33,6 @@
   background-color: color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 
-.sliderLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  font-size: 0.85rem;
-  color: var(--color-muted);
-  min-width: 0;
-}
-
-.slider {
-  flex: 1;
-  /* 44px tall touch area for the slider thumb. */
-  height: 44px;
-  cursor: pointer;
-  accent-color: var(--color-accent);
-}
-
 /* Reduced-motion notice shown when the OS prefers-reduced-motion is set and
    the user has not yet opted in. */
 .reducedMotionNotice {

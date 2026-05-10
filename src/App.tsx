@@ -5,6 +5,7 @@ import SettingsPanel from '@/components/settings/SettingsPanel';
 import { loadBookmark, saveBookmark } from '@/lib/bookmark';
 import type { Bookmark } from '@/lib/bookmark';
 import { useSettings } from '@/hooks/useSettings';
+import { intervalMsToPxPerFrame } from '@/lib/speed';
 import styles from './App.module.css';
 
 const DEBOUNCE_MS = 500;
@@ -23,7 +24,11 @@ export default function App() {
   );
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { settings, setTextSize } = useSettings();
+  const { settings, setTextSize, setScrollInterval } = useSettings();
+
+  // Compute px-per-frame from persisted interval and current text size.
+  // This value flows down to ScrollControls which forwards it to the engine.
+  const pxPerFrame = intervalMsToPxPerFrame(settings.scrollIntervalMs, settings.textSizeRem);
 
   // Holds the debounce timer ID so we can cancel it on unmount.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,6 +104,7 @@ export default function App() {
           surahNumber={selectedSurah}
           onBack={handleBack}
           textSizeRem={settings.textSizeRem}
+          pxPerFrame={pxPerFrame}
         />
       )}
       <button
@@ -114,6 +120,8 @@ export default function App() {
         onClose={() => setIsSettingsOpen(false)}
         textSizeRem={settings.textSizeRem}
         onTextSizeChange={setTextSize}
+        scrollIntervalMs={settings.scrollIntervalMs}
+        onScrollIntervalChange={setScrollInterval}
       />
     </div>
   );

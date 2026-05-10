@@ -5,11 +5,17 @@ const TEXT_SIZE_MIN = 1.0;
 const TEXT_SIZE_MAX = 2.5;
 const TEXT_SIZE_STEP = 0.125;
 
+const SCROLL_INTERVAL_MIN = 400;
+const SCROLL_INTERVAL_MAX = 10000;
+const SCROLL_INTERVAL_STEP = 200;
+
 type Props = {
   open: boolean;
   onClose: () => void;
   textSizeRem: number;
   onTextSizeChange: (rem: number) => void;
+  scrollIntervalMs: number;
+  onScrollIntervalChange: (ms: number) => void;
 };
 
 export default function SettingsPanel({
@@ -17,6 +23,8 @@ export default function SettingsPanel({
   onClose,
   textSizeRem,
   onTextSizeChange,
+  scrollIntervalMs,
+  onScrollIntervalChange,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -55,15 +63,31 @@ export default function SettingsPanel({
     return `${Number.isInteger(trimmed) ? trimmed.toFixed(1) : trimmed}rem`;
   }
 
+  // Display scroll interval as "X.Ys" — e.g. 2000ms → "2.0s".
+  function formatScrollInterval(ms: number): string {
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+
   // Round to 3 decimal places to guard against any accumulated float drift.
-  function handleDecrease() {
+  function handleTextDecrease() {
     if (textSizeRem <= TEXT_SIZE_MIN) return;
     onTextSizeChange(Math.round((textSizeRem - TEXT_SIZE_STEP) * 1000) / 1000);
   }
 
-  function handleIncrease() {
+  function handleTextIncrease() {
     if (textSizeRem >= TEXT_SIZE_MAX) return;
     onTextSizeChange(Math.round((textSizeRem + TEXT_SIZE_STEP) * 1000) / 1000);
+  }
+
+  // + increases the interval (slower scrolling); − decreases it (faster scrolling).
+  function handleScrollDecrease() {
+    if (scrollIntervalMs <= SCROLL_INTERVAL_MIN) return;
+    onScrollIntervalChange(scrollIntervalMs - SCROLL_INTERVAL_STEP);
+  }
+
+  function handleScrollIncrease() {
+    if (scrollIntervalMs >= SCROLL_INTERVAL_MAX) return;
+    onScrollIntervalChange(scrollIntervalMs + SCROLL_INTERVAL_STEP);
   }
 
   return (
@@ -90,6 +114,33 @@ export default function SettingsPanel({
         </header>
         <div className={styles.content}>
           <div className={styles.controlRow}>
+            <span className={styles.controlLabel}>Scroll speed</span>
+            {/* aria-live so screen readers announce the value change after each tap */}
+            <span className={styles.controlValue} aria-live="polite">
+              {formatScrollInterval(scrollIntervalMs)}
+            </span>
+            <div className={styles.controlButtons}>
+              <button
+                type="button"
+                className={styles.stepButton}
+                aria-label="Decrease scroll interval"
+                disabled={scrollIntervalMs <= SCROLL_INTERVAL_MIN}
+                onClick={handleScrollDecrease}
+              >
+                &#x2212;
+              </button>
+              <button
+                type="button"
+                className={styles.stepButton}
+                aria-label="Increase scroll interval"
+                disabled={scrollIntervalMs >= SCROLL_INTERVAL_MAX}
+                onClick={handleScrollIncrease}
+              >
+                &#x2B;
+              </button>
+            </div>
+          </div>
+          <div className={styles.controlRow}>
             <span className={styles.controlLabel}>Text size</span>
             {/* aria-live so screen readers announce the value change after each tap */}
             <span className={styles.controlValue} aria-live="polite">
@@ -101,7 +152,7 @@ export default function SettingsPanel({
                 className={styles.stepButton}
                 aria-label="Decrease text size"
                 disabled={textSizeRem <= TEXT_SIZE_MIN}
-                onClick={handleDecrease}
+                onClick={handleTextDecrease}
               >
                 &#x2212;
               </button>
@@ -110,7 +161,7 @@ export default function SettingsPanel({
                 className={styles.stepButton}
                 aria-label="Increase text size"
                 disabled={textSizeRem >= TEXT_SIZE_MAX}
-                onClick={handleIncrease}
+                onClick={handleTextIncrease}
               >
                 &#x2B;
               </button>

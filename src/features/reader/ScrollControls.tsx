@@ -2,12 +2,22 @@ import { useEffect, useId } from 'react';
 import { useScrollEngine } from '@/hooks/useScrollEngine';
 import styles from './ScrollControls.module.css';
 
-export default function ScrollControls() {
-  const { isRunning, isReducedMotion, isOptedIn, speed, start, stop, toggle, setSpeed, enableAutoScroll } =
+type Props = {
+  pxPerFrame: number;
+};
+
+export default function ScrollControls({ pxPerFrame }: Props) {
+  const { isRunning, isReducedMotion, isOptedIn, start, stop, toggle, setSpeed, enableAutoScroll } =
     useScrollEngine();
 
-  const sliderId = useId();
+  // useId ensures collision-free IDs if multiple ScrollControls instances ever render.
   const reducedMotionDescId = useId();
+
+  // Forward the computed pxPerFrame from App into the engine whenever it changes.
+  // This keeps speed control in settings without the engine knowing about intervals.
+  useEffect(() => {
+    setSpeed(pxPerFrame);
+  }, [pxPerFrame, setSpeed]);
 
   // Document-level spacebar handler so pause/resume works without focus on the button.
   useEffect(() => {
@@ -59,22 +69,6 @@ export default function ScrollControls() {
       >
         {isRunning ? 'Pause' : 'Play'}
       </button>
-
-      <label className={styles.sliderLabel} htmlFor={sliderId}>
-        Scroll speed
-        <input
-          id={sliderId}
-          type="range"
-          className={styles.slider}
-          min="0"
-          max="3"
-          step="0.25"
-          value={speed}
-          onChange={(e) => {
-            setSpeed(Number(e.target.value));
-          }}
-        />
-      </label>
     </div>
   );
 }

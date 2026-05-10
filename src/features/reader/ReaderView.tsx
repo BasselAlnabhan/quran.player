@@ -8,9 +8,10 @@ type Props = {
   surahNumber: number;
   onBack: () => void;
   textSizeRem: number;
+  pxPerFrame: number;
 };
 
-export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) {
+export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFrame }: Props) {
   const { data, error } = useQuranData();
 
   if (error) {
@@ -69,7 +70,7 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) 
           </span>
         ))}
       </p>
-      <ScrollControls />
+      <ScrollControls pxPerFrame={pxPerFrame} />
     </div>
   );
 }

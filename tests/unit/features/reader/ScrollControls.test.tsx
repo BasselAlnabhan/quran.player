@@ -135,7 +135,7 @@ afterEach(() => {
 describe('ScrollControls — play/pause click', () => {
   it('calls engine start() when the play button is clicked', async () => {
     const user = userEvent.setup();
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     const playButton = screen.getByRole('button', { name: /start auto-scroll/i });
     await user.click(playButton);
@@ -145,7 +145,7 @@ describe('ScrollControls — play/pause click', () => {
 
   it('calls engine stop() when clicked again after starting', async () => {
     const user = userEvent.setup();
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     const playButton = screen.getByRole('button', { name: /start auto-scroll/i });
     await user.click(playButton);
@@ -164,14 +164,14 @@ describe('ScrollControls — play/pause click', () => {
 
 describe('ScrollControls — aria-label updates', () => {
   it('shows "Start auto-scroll" aria-label when the engine is stopped', () => {
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
     const btn = screen.getByRole('button', { name: /start auto-scroll/i });
     expect(btn).toBeInTheDocument();
   });
 
   it('shows "Pause auto-scroll" aria-label after clicking play', async () => {
     const user = userEvent.setup();
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /start auto-scroll/i }));
 
@@ -180,7 +180,7 @@ describe('ScrollControls — aria-label updates', () => {
 
   it('reverts to "Start auto-scroll" after clicking pause', async () => {
     const user = userEvent.setup();
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /start auto-scroll/i }));
     await user.click(screen.getByRole('button', { name: /pause auto-scroll/i }));
@@ -195,7 +195,7 @@ describe('ScrollControls — aria-label updates', () => {
 
 describe('ScrollControls — spacebar toggle', () => {
   it('toggles play when spacebar is pressed on document', () => {
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     fireEvent.keyDown(document, { key: ' ' });
 
@@ -206,7 +206,7 @@ describe('ScrollControls — spacebar toggle', () => {
   it('does not toggle when space is pressed inside an <input>', () => {
     render(
       <>
-        <ScrollControls />
+        <ScrollControls pxPerFrame={0.5} />
         <input data-testid="search-input" />
       </>,
     );
@@ -221,7 +221,7 @@ describe('ScrollControls — spacebar toggle', () => {
   it('does not toggle when space is pressed inside a <textarea>', () => {
     render(
       <>
-        <ScrollControls />
+        <ScrollControls pxPerFrame={0.5} />
         <textarea data-testid="notes" />
       </>,
     );
@@ -238,7 +238,7 @@ describe('ScrollControls — spacebar toggle', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     fireEvent.keyDown(document, { key: ' ' });
 
@@ -247,26 +247,30 @@ describe('ScrollControls — spacebar toggle', () => {
 });
 
 // ---------------------------------------------------------------------------
-// AC3: Slider changes speed
+// pxPerFrame prop forwarding
 // ---------------------------------------------------------------------------
 
-describe('ScrollControls — speed slider', () => {
-  it('calls engine setSpeed() when the slider value changes', () => {
-    render(<ScrollControls />);
+describe('ScrollControls — pxPerFrame prop forwarding', () => {
+  it('calls engine setSpeed() with the pxPerFrame prop value on mount', () => {
+    render(<ScrollControls pxPerFrame={0.4} />);
 
-    const slider = screen.getByRole('slider');
-    fireEvent.change(slider, { target: { value: '1.5' } });
-
-    expect(engineMock.setSpeed).toHaveBeenCalledWith(1.5);
+    expect(engineMock.setSpeed).toHaveBeenCalledWith(0.4);
   });
 
-  it('calls engine setSpeed() with the correct numeric value', () => {
-    render(<ScrollControls />);
+  it('calls engine setSpeed() again when the pxPerFrame prop changes', () => {
+    const { rerender } = render(<ScrollControls pxPerFrame={0.4} />);
 
-    const slider = screen.getByRole('slider');
-    fireEvent.change(slider, { target: { value: '2.75' } });
+    engineMock.setSpeed.mockClear();
 
-    expect(engineMock.setSpeed).toHaveBeenCalledWith(2.75);
+    rerender(<ScrollControls pxPerFrame={0.8} />);
+
+    expect(engineMock.setSpeed).toHaveBeenCalledWith(0.8);
+  });
+
+  it('does not render an <input type="range"> slider', () => {
+    render(<ScrollControls pxPerFrame={0.5} />);
+
+    expect(document.querySelector('input[type="range"]')).toBeNull();
   });
 });
 
@@ -280,7 +284,7 @@ describe('ScrollControls — reduced-motion default', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     expect(screen.getByRole('button', { name: /enable auto-scroll/i })).toBeInTheDocument();
   });
@@ -290,7 +294,7 @@ describe('ScrollControls — reduced-motion default', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     expect(screen.queryByRole('button', { name: /start auto-scroll/i })).not.toBeInTheDocument();
   });
@@ -300,7 +304,7 @@ describe('ScrollControls — reduced-motion default', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     expect(screen.getByText(/reduced motion/i)).toBeInTheDocument();
   });
@@ -310,7 +314,7 @@ describe('ScrollControls — reduced-motion default', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     // The play button must not be present — the only way for the user to
     // interact with the engine in reduced-motion mode is via "Enable auto-scroll".
@@ -336,7 +340,7 @@ describe('ScrollControls — opt-in to auto-scroll', () => {
       .mockReturnValueOnce(firstEngine)
       .mockReturnValueOnce(secondEngine);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /enable auto-scroll/i }));
 
@@ -353,7 +357,7 @@ describe('ScrollControls — opt-in to auto-scroll', () => {
       .mockReturnValueOnce(firstEngine)
       .mockReturnValueOnce(secondEngine);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /enable auto-scroll/i }));
     await user.click(screen.getByRole('button', { name: /start auto-scroll/i }));
@@ -371,7 +375,7 @@ describe('ScrollControls — opt-in to auto-scroll', () => {
       .mockReturnValueOnce(firstEngine)
       .mockReturnValueOnce(secondEngine);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
     expect(mockCreateScrollEngine).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: /enable auto-scroll/i }));
@@ -389,7 +393,7 @@ describe('ScrollControls — opt-in to auto-scroll', () => {
       .mockReturnValueOnce(firstEngine)
       .mockReturnValueOnce(secondEngine);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /enable auto-scroll/i }));
 
@@ -403,7 +407,7 @@ describe('ScrollControls — opt-in to auto-scroll', () => {
 
 describe('ScrollControls — unmount cleanup', () => {
   it('calls engine destroy() exactly once on unmount', () => {
-    const { unmount } = render(<ScrollControls />);
+    const { unmount } = render(<ScrollControls pxPerFrame={0.5} />);
 
     unmount();
 
@@ -411,7 +415,7 @@ describe('ScrollControls — unmount cleanup', () => {
   });
 
   it('does not call engine start/stop after unmount when spacebar is pressed', () => {
-    const { unmount } = render(<ScrollControls />);
+    const { unmount } = render(<ScrollControls pxPerFrame={0.5} />);
 
     unmount();
 
@@ -431,7 +435,7 @@ describe('ScrollControls — unmount cleanup', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    const { unmount } = render(<ScrollControls />);
+    const { unmount } = render(<ScrollControls pxPerFrame={0.5} />);
 
     unmount();
 
@@ -450,7 +454,7 @@ describe('ScrollControls — engine creation options', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     const lastCall = mockCreateScrollEngine.mock.calls[0];
     const opts = lastCall?.[0];
@@ -462,7 +466,7 @@ describe('ScrollControls — engine creation options', () => {
     engineMock = makeEngineMock();
     mockCreateScrollEngine.mockReturnValue(engineMock);
 
-    render(<ScrollControls />);
+    render(<ScrollControls pxPerFrame={0.5} />);
 
     const lastCall = mockCreateScrollEngine.mock.calls[0];
     const opts = lastCall?.[0];

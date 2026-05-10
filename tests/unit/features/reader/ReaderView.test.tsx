@@ -72,7 +72,7 @@ afterEach(() => {
 describe('ReaderView — loading state', () => {
   it('renders a role="status" element while data is pending', () => {
     mockUseQuranData.mockReturnValue({ data: undefined, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const status = screen.getByRole('status');
     expect(status).toBeInTheDocument();
     expect(status.textContent?.trim().length).toBeGreaterThan(0);
@@ -86,7 +86,7 @@ describe('ReaderView — loading state', () => {
 describe('ReaderView — invalid surah number', () => {
   it('shows a role="alert" error for an out-of-range surah number', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={999} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={999} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const alert = screen.getByRole('alert');
     expect(alert).toBeInTheDocument();
     expect(alert.textContent).toMatch(/not found/i);
@@ -100,7 +100,7 @@ describe('ReaderView — invalid surah number', () => {
 describe('ReaderView — RTL and lang attributes', () => {
   it('renders an element with dir="rtl" and lang="ar" wrapping the ayah content', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const rtlEl = document.querySelector('[dir="rtl"][lang="ar"]');
     expect(rtlEl).not.toBeNull();
   });
@@ -113,7 +113,7 @@ describe('ReaderView — RTL and lang attributes', () => {
 describe('ReaderView — Al-Fatiha (surah 1)', () => {
   it('renders exactly 7 ayah elements for Al-Fatiha', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const ayahs = screen.getAllByTestId('ayah');
     expect(ayahs).toHaveLength(7);
   });
@@ -126,7 +126,7 @@ describe('ReaderView — Al-Fatiha (surah 1)', () => {
 describe('ReaderView — tajweed marker rendering', () => {
   it('renders Al-Fatiha verse 1 without any literal [ or ] characters in the DOM', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     // The tajweed parser must strip all marker syntax; none should appear in text content.
     const ayahs = screen.getAllByTestId('ayah');
     ayahs.forEach((el) => {
@@ -143,7 +143,7 @@ describe('ReaderView — tajweed marker rendering', () => {
 describe('ReaderView — Al-Baqarah (surah 2)', () => {
   it('renders exactly 286 ayah elements for Al-Baqarah without crashing', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={2} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={2} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const ayahs = screen.getAllByTestId('ayah');
     expect(ayahs).toHaveLength(286);
   });
@@ -156,7 +156,7 @@ describe('ReaderView — Al-Baqarah (surah 2)', () => {
 describe('ReaderView — hook error', () => {
   it('renders an error message when the data hook fails to load', () => {
     mockUseQuranData.mockReturnValue({ data: undefined, error: new Error('load failure') });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const alert = screen.getByRole('alert');
     expect(alert).toBeInTheDocument();
     expect(alert.textContent).toContain('load failure');
@@ -172,7 +172,7 @@ describe('ReaderView — back button', () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={onBack} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={onBack} textSizeRem={1.5} pxPerFrame={0.4} />);
 
     const backButton = screen.getByRole('button', { name: /back to surah list/i });
     await user.click(backButton);
@@ -182,7 +182,7 @@ describe('ReaderView — back button', () => {
 
   it('back button is a real <button> element with an accessible label', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
     const backButton = screen.getByRole('button', { name: /back to surah list/i });
     expect(backButton.tagName).toBe('BUTTON');
   });
@@ -208,7 +208,7 @@ describe('ReaderView — ScrollControls integration', () => {
       error: undefined,
     });
 
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
 
     // The back button must be present.
     expect(screen.getByRole('button', { name: /back to surah list/i })).toBeInTheDocument();
@@ -227,7 +227,7 @@ describe('ReaderView — ScrollControls integration', () => {
 describe('ReaderView — textSizeRem prop', () => {
   it('applies the textSizeRem prop as an inline fontSize on the ayah block', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={2.0} />);
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={2.0} pxPerFrame={0.4} />);
 
     const ayahBlock = document.querySelector<HTMLElement>('[dir="rtl"][lang="ar"]');
     expect(ayahBlock).not.toBeNull();
