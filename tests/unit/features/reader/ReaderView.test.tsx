@@ -120,6 +120,23 @@ describe('ReaderView — Al-Fatiha (surah 1)', () => {
 });
 
 // ---------------------------------------------------------------------------
+// TajweedAyah integration — no raw markers leak into the DOM
+// ---------------------------------------------------------------------------
+
+describe('ReaderView — tajweed marker rendering', () => {
+  it('renders Al-Fatiha verse 1 without any literal [ or ] characters in the DOM', () => {
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} />);
+    // The tajweed parser must strip all marker syntax; none should appear in text content.
+    const ayahs = screen.getAllByTestId('ayah');
+    ayahs.forEach((el) => {
+      expect(el.textContent).not.toMatch(/\[/);
+      expect(el.textContent).not.toMatch(/\]/);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Al-Baqarah (surah 2) — 286 ayahs smoke test
 // ---------------------------------------------------------------------------
 
