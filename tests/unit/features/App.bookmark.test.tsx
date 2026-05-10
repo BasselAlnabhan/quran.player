@@ -114,8 +114,8 @@ describe('App — resume from bookmark on mount', () => {
 
   it('renders the picker when there is no bookmark', () => {
     render(<App />);
-    // Picker shows 114 surah buttons (no back button).
-    expect(screen.getAllByRole('button')).toHaveLength(114);
+    // 114 surah buttons + 1 persistent settings button = 115 total.
+    expect(screen.getAllByRole('button')).toHaveLength(115);
   });
 });
 

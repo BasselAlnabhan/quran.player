@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import SurahPicker from '@/features/surah-picker/SurahPicker';
 import ReaderView from '@/features/reader/ReaderView';
+import SettingsPanel from '@/components/settings/SettingsPanel';
 import { loadBookmark, saveBookmark } from '@/lib/bookmark';
 import type { Bookmark } from '@/lib/bookmark';
+import styles from './App.module.css';
 
 const DEBOUNCE_MS = 500;
 
@@ -18,6 +20,8 @@ export default function App() {
   const [selectedSurah, setSelectedSurah] = useState<number | null>(
     initialBookmarkRef.current?.surahNumber ?? null,
   );
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Holds the debounce timer ID so we can cancel it on unmount.
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,6 +98,18 @@ export default function App() {
           onBack={handleBack}
         />
       )}
+      <button
+        type="button"
+        className={styles.settingsButton}
+        aria-label="Open settings"
+        onClick={() => setIsSettingsOpen(true)}
+      >
+        &#x2699;
+      </button>
+      <SettingsPanel
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }

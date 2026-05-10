@@ -1,0 +1,95 @@
+/* Reset <dialog> UA styles and use the element as a fixed full-viewport
+   backdrop catcher. The native ::backdrop only appears with showModal(); we
+   implement the backdrop as a semi-transparent dialog background instead. */
+.dialog {
+  position: fixed;
+  /* Sit above ScrollControls (z-index: 100) and below future toast layers. */
+  z-index: 200;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+/* Hidden state: CSS display:none so it is removed from the accessibility tree
+   and does not accept pointer events. */
+.dialog:not([open]) {
+  display: none;
+}
+
+/* Open state: flex container aligns the panel to the bottom of the screen
+   (bottom-sheet pattern) on narrow viewports. The semi-transparent background
+   replaces the native ::backdrop that only works with showModal(). */
+.dialog[open] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* The visible panel card — bottom sheet by default (phone-first). */
+.panel {
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  /* Respect iOS safe area so content clears the home-indicator bar. */
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Header row: title on the left, close button on the right. */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Close button — 44 px minimum tap target per WCAG 2.5.5. */
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-fg);
+  font-size: 1.25rem;
+  line-height: 1;
+  /* Ensure at least 44x44 px tap target. */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.content {
+  /* Scrollable if panel content exceeds viewport height. */
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+/* On wider screens the panel floats as a centred modal rather than a
+   bottom sheet. */
+@media (min-width: 481px) {
+  .dialog[open] {
+    align-items: center;
+  }
+
+  .panel {
+    border-radius: 16px;
+    max-width: 420px;
+  }
+}

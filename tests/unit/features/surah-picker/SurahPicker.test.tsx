@@ -135,7 +135,8 @@ describe('App — surah picker integration', () => {
   it('shows the picker (114 buttons) when no surah is selected', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
     render(<App />);
-    expect(screen.getAllByRole('button')).toHaveLength(114);
+    // 114 surah buttons + 1 persistent settings button = 115 total.
+    expect(screen.getAllByRole('button')).toHaveLength(115);
   });
 
   it('id="app-shell" is present on the root element', () => {
