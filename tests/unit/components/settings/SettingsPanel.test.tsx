@@ -607,7 +607,7 @@ describe('App — scroll-speed control wired end-to-end', () => {
     await user.click(surahButtons[0]!);
 
     // Capture the initial pxPerFrame forwarded to the engine on mount.
-    // Default intervalMs=2000, textSizeRem=1.5 (see useSettings defaults).
+    // Default intervalMs=1400, textSizeRem=1.5 (see useSettings defaults).
     const initialSpeed = engineMock.setSpeed.mock.calls[0]?.[0];
     expect(initialSpeed).toBeGreaterThan(0);
 
@@ -621,12 +621,12 @@ describe('App — scroll-speed control wired end-to-end', () => {
     // setSpeed should have been called with the converted pxPerFrame for the new interval.
     expect(engineMock.setSpeed).toHaveBeenCalled();
 
-    // intervalMs went 2000 → 2200; larger interval = slower = smaller pxPerFrame.
+    // intervalMs went 1400 → 1600; larger interval = slower = smaller pxPerFrame.
     const newSpeed = engineMock.setSpeed.mock.calls.at(-1)?.[0];
     expect(newSpeed).toBeLessThan(initialSpeed!);
 
     // Also verify the exact converted value (textSizeRem stays 1.5).
-    const expectedSpeed = intervalMsToPxPerFrame(2200, 1.5);
+    const expectedSpeed = intervalMsToPxPerFrame(1600, 1.5);
     expect(newSpeed).toBeCloseTo(expectedSpeed, 10);
   });
 });

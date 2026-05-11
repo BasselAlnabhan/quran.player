@@ -8,7 +8,6 @@ export type UseScrollEngineResult = {
   isRunning: boolean;
   isReducedMotion: boolean;
   isOptedIn: boolean;
-  speed: number;
   start: () => void;
   stop: () => void;
   toggle: () => void;
@@ -35,7 +34,6 @@ export function useScrollEngine(): UseScrollEngineResult {
 
   // UI-facing state that mirrors the engine's internal values.
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [speed, setSpeedState] = useState<number>(DEFAULT_SPEED);
 
   // The engine instance lives in a ref — its identity changing is not a React
   // value change and must NOT go into state to avoid infinite re-render loops.
@@ -105,7 +103,6 @@ export function useScrollEngine(): UseScrollEngineResult {
 
   const setSpeed = useCallback((n: number) => {
     engineRef.current?.setSpeed(n);
-    setSpeedState(n);
   }, []);
 
   const enableAutoScroll = useCallback(() => {
@@ -123,7 +120,6 @@ export function useScrollEngine(): UseScrollEngineResult {
     isRunning,
     isReducedMotion,
     isOptedIn,
-    speed,
     start,
     stop,
     toggle,

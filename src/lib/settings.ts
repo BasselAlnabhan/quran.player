@@ -15,7 +15,7 @@ export type Settings = {
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'auto',
   textSizeRem: 1.5,
-  scrollIntervalMs: 2000,
+  scrollIntervalMs: 1400,
 };
 
 const VALID_THEMES: ReadonlySet<string> = new Set(['auto', 'light', 'dark']);
