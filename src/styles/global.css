@@ -64,16 +64,26 @@ html {
 body {
   background-color: var(--color-bg);
   color: var(--color-fg);
-  /* System Arabic font stack — no web font fetch required. */
+  /* Arial for UI chrome (settings, buttons, picker labels). Arabic content
+     gets its own font stack via the [lang="ar"] / [dir="rtl"] rule below so
+     Quranic glyphs still render with proper shaping. */
+  font-family: Arial, system-ui, sans-serif;
+  line-height: 1.6;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Arabic content keeps a system Arabic font stack. Selector matches the
+   ayah block (lang="ar" dir="rtl") and the Arabic surah names in the picker
+   (also lang="ar"). UI chrome — settings, buttons — defaults to Arial. */
+[lang="ar"],
+[dir="rtl"] {
   font-family:
     'Geeza Pro',
     'Arabic Typesetting',
     'Traditional Arabic',
     system-ui,
     sans-serif;
-  line-height: 1.6;
-  min-height: 100dvh;
-  -webkit-font-smoothing: antialiased;
 }
 
 /* Visible focus ring for keyboard navigation (AA-compliant). */
