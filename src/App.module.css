@@ -1,10 +1,54 @@
-/* Settings gear button — fixed position so it is always visible regardless of
-   scroll position, overlaying both the picker and the reader views. */
-.settingsButton {
+/* Bar heights are named here so the matching padding on .main can reference
+   the same logical values. Both bars are 56px — a comfortable tap-target height
+   that leaves enough room for inner controls. */
+:root {
+  --top-bar-height: 56px;
+  --bottom-bar-height: 56px;
+}
+
+/* Shared structural rules for both bars. */
+.topBar,
+.bottomBar {
   position: fixed;
-  top: 0.75rem;
-  right: 0.75rem;
-  z-index: 10;
+  left: 0;
+  right: 0;
+  /* Above page content but below the settings dialog (z-index: 200). */
+  z-index: 100;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  /* Prevent horizontal overflow at narrow viewports (e.g. 320px). */
+  overflow-x: hidden;
+}
+
+.topBar {
+  top: 0;
+  height: var(--top-bar-height);
+  border-bottom: 1px solid var(--color-muted);
+  /* Push settings button to the trailing edge. */
+  justify-content: flex-end;
+  padding: 0 0.75rem;
+}
+
+.bottomBar {
+  bottom: 0;
+  height: var(--bottom-bar-height);
+  border-top: 1px solid var(--color-muted);
+  justify-content: flex-start;
+}
+
+/* Content area sits between the two fixed bars; padding ensures the first and
+   last content lines aren't hidden behind the header/footer chrome. */
+.main {
+  /* must match --top-bar-height so content starts below the header */
+  padding-top: var(--top-bar-height);
+  /* must match --bottom-bar-height so the last ayah clears the footer */
+  padding-bottom: var(--bottom-bar-height);
+}
+
+/* Settings gear button — inside the header, so no fixed positioning needed.
+   Uses margin-left: auto via parent justify-content: flex-end. */
+.settingsButton {
   background: var(--color-bg);
   border: 1px solid var(--color-muted);
   border-radius: 8px;

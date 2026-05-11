@@ -151,8 +151,9 @@ describe('App — surah picker integration', () => {
     render(<App />);
 
     // Click the first surah button (surah 1).
+    // Index 0 is the settings button in the <header>; surah N is at index N.
     const pickerButtons = screen.getAllByRole('button');
-    await user.click(pickerButtons[0]!);
+    await user.click(pickerButtons[1]!);
 
     await waitFor(() => {
       // ReaderView renders an RTL Arabic text block and the SR-only back button.
@@ -169,7 +170,8 @@ describe('App — surah picker integration', () => {
     render(<App />);
 
     const pickerButtons = screen.getAllByRole('button');
-    await user.click(pickerButtons[6]!); // surah 7 is index 6
+    // Index 0 is the settings button in the <header>; surah N is at index N.
+    await user.click(pickerButtons[7]!); // surah 7 is at index 7
 
     await waitFor(() => {
       // ReaderView for any valid surah shows the RTL block and SR-only back button.

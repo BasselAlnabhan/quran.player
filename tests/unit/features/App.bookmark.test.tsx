@@ -192,8 +192,9 @@ describe('App — immediate save on surah change', () => {
     const saveBookmarkSpy = vi.spyOn(bookmarkLib, 'saveBookmark');
 
     const buttons = screen.getAllByRole('button');
-    // Surah 3 is at index 2 in the picker list.
-    await user.click(buttons[2]!);
+    // Surah 3 is at index 3: index 0 is the settings button in the <header>,
+    // then surahs 1..114 follow in the <main> (surah N at index N).
+    await user.click(buttons[3]!);
 
     // saveBookmark should have been called immediately on click (not waiting for debounce).
     expect(saveBookmarkSpy).toHaveBeenCalledWith({ surahNumber: 3, scrollY: 0 });
@@ -205,7 +206,8 @@ describe('App — immediate save on surah change', () => {
     render(<App />);
 
     const buttons = screen.getAllByRole('button');
-    await user.click(buttons[6]!); // surah 7 is at index 6
+    // Index 0 = settings button in <header>; surah N is at index N.
+    await user.click(buttons[7]!); // surah 7 is at index 7
 
     const stored = bookmarkLib.loadBookmark();
     expect(stored?.surahNumber).toBe(7);

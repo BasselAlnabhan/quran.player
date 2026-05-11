@@ -150,8 +150,8 @@ describe('ScrollControls — play/pause click', () => {
     const playButton = screen.getByRole('button', { name: /start auto-scroll/i });
     await user.click(playButton);
 
-    // After clicking play, the button label flips to "Pause auto-scroll".
-    const pauseButton = screen.getByRole('button', { name: /pause auto-scroll/i });
+    // After clicking play, the button label flips to "Stop auto-scroll".
+    const pauseButton = screen.getByRole('button', { name: /stop auto-scroll/i });
     await user.click(pauseButton);
 
     expect(engineMock.stop).toHaveBeenCalledOnce();
@@ -169,21 +169,21 @@ describe('ScrollControls — aria-label updates', () => {
     expect(btn).toBeInTheDocument();
   });
 
-  it('shows "Pause auto-scroll" aria-label after clicking play', async () => {
+  it('shows "Stop auto-scroll" aria-label after clicking play', async () => {
     const user = userEvent.setup();
     render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /start auto-scroll/i }));
 
-    expect(screen.getByRole('button', { name: /pause auto-scroll/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /stop auto-scroll/i })).toBeInTheDocument();
   });
 
-  it('reverts to "Start auto-scroll" after clicking pause', async () => {
+  it('reverts to "Start auto-scroll" after clicking stop', async () => {
     const user = userEvent.setup();
     render(<ScrollControls pxPerFrame={0.5} />);
 
     await user.click(screen.getByRole('button', { name: /start auto-scroll/i }));
-    await user.click(screen.getByRole('button', { name: /pause auto-scroll/i }));
+    await user.click(screen.getByRole('button', { name: /stop auto-scroll/i }));
 
     expect(screen.getByRole('button', { name: /start auto-scroll/i })).toBeInTheDocument();
   });
@@ -319,7 +319,7 @@ describe('ScrollControls — reduced-motion default', () => {
     // The play button must not be present — the only way for the user to
     // interact with the engine in reduced-motion mode is via "Enable auto-scroll".
     expect(screen.queryByRole('button', { name: /start auto-scroll/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /pause auto-scroll/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /stop auto-scroll/i })).not.toBeInTheDocument();
   });
 });
 

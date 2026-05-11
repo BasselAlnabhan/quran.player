@@ -41,7 +41,7 @@ export default function ScrollControls({ pxPerFrame }: Props) {
 
   if (showReducedMotionNotice) {
     return (
-      <div className={styles.controls} aria-label="Auto-scroll controls">
+      <div role="group" className={styles.controls} aria-label="Auto-scroll controls">
         <div className={styles.reducedMotionNotice}>
           <p className={styles.reducedMotionText} id={reducedMotionDescId}>
             Auto-scroll is off because your device prefers reduced motion.
@@ -60,14 +60,17 @@ export default function ScrollControls({ pxPerFrame }: Props) {
   }
 
   return (
-    <div className={styles.controls} aria-label="Auto-scroll controls">
+    <div role="group" className={styles.controls} aria-label="Auto-scroll controls">
       <button
         type="button"
         className={styles.playButton}
-        aria-label={isRunning ? 'Pause auto-scroll' : 'Start auto-scroll'}
+        aria-label={isRunning ? 'Stop auto-scroll' : 'Start auto-scroll'}
         onClick={isRunning ? stop : start}
       >
-        {isRunning ? 'Pause' : 'Play'}
+        {/* aria-hidden: the button's aria-label already announces the action */}
+        <span aria-hidden="true" className={styles.playIcon}>
+          {isRunning ? '⏹' : '▶'}
+        </span>
       </button>
     </div>
   );

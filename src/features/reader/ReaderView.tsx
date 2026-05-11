@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useQuranData } from '@/hooks/useQuranData';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { getSurah } from '@/lib/quran';
-import ScrollControls from './ScrollControls';
 import TajweedAyah from './TajweedAyah';
 import styles from './ReaderView.module.css';
 
@@ -10,10 +9,9 @@ type Props = {
   surahNumber: number;
   onBack: () => void;
   textSizeRem: number;
-  pxPerFrame: number;
 };
 
-export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFrame }: Props) {
+export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) {
   const { data, error } = useQuranData();
 
   // Swipe gesture handles the primary back navigation on touch devices.
@@ -86,7 +84,6 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFram
           </span>
         ))}
       </p>
-      <ScrollControls pxPerFrame={pxPerFrame} />
     </div>
   );
 }

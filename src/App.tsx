@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import SurahPicker from '@/features/surah-picker/SurahPicker';
 import ReaderView from '@/features/reader/ReaderView';
+import ScrollControls from '@/features/reader/ScrollControls';
 import SettingsPanel from '@/components/settings/SettingsPanel';
 import { loadBookmark, saveBookmark } from '@/lib/bookmark';
 import type { Bookmark } from '@/lib/bookmark';
@@ -107,24 +108,32 @@ export default function App() {
 
   return (
     <div id="app-shell">
-      {selectedSurah === null ? (
-        <SurahPicker onSelect={handleSelectSurah} />
-      ) : (
-        <ReaderView
-          surahNumber={selectedSurah}
-          onBack={handleBack}
-          textSizeRem={settings.textSizeRem}
-          pxPerFrame={pxPerFrame}
-        />
-      )}
-      <button
-        type="button"
-        className={styles.settingsButton}
-        aria-label="Open settings"
-        onClick={() => setIsSettingsOpen(true)}
-      >
-        &#x2699;
-      </button>
+      {/* topBar height must match the padding-top on .main so content isn't hidden under it */}
+      <header className={styles.topBar} aria-label="App header">
+        <button
+          type="button"
+          className={styles.settingsButton}
+          aria-label="Open settings"
+          onClick={() => setIsSettingsOpen(true)}
+        >
+          &#x2699;
+        </button>
+      </header>
+      <main className={styles.main}>
+        {selectedSurah === null ? (
+          <SurahPicker onSelect={handleSelectSurah} />
+        ) : (
+          <ReaderView
+            surahNumber={selectedSurah}
+            onBack={handleBack}
+            textSizeRem={settings.textSizeRem}
+          />
+        )}
+      </main>
+      {/* bottomBar height must match the padding-bottom on .main so last content isn't hidden */}
+      <footer className={styles.bottomBar} aria-label="App footer">
+        {selectedSurah !== null && <ScrollControls pxPerFrame={pxPerFrame} />}
+      </footer>
       <SettingsPanel
         open={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
