@@ -136,6 +136,35 @@
   cursor: not-allowed;
 }
 
+/* Theme toggle — three-button group (Auto / Light / Dark). */
+.themeGroup {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.themeButton {
+  background: none;
+  border: 1px solid var(--color-muted);
+  cursor: pointer;
+  color: var(--color-fg);
+  font-size: 0.875rem;
+  /* ≥44px tap target per WCAG 2.5.5 */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Visually indicates the active selection — accent border + subtle tint. */
+.themeButtonActive {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
 /* On wider screens the panel floats as a centred modal rather than a
    bottom sheet. */
 @media (min-width: 481px) {

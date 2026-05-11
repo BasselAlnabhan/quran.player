@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { Theme } from '@/lib/settings';
 import styles from './SettingsPanel.module.css';
 
 const TEXT_SIZE_MIN = 1.0;
@@ -16,6 +17,8 @@ type Props = {
   onTextSizeChange: (rem: number) => void;
   scrollIntervalMs: number;
   onScrollIntervalChange: (ms: number) => void;
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
 };
 
 export default function SettingsPanel({
@@ -25,6 +28,8 @@ export default function SettingsPanel({
   onTextSizeChange,
   scrollIntervalMs,
   onScrollIntervalChange,
+  theme,
+  onThemeChange,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -113,6 +118,22 @@ export default function SettingsPanel({
           </button>
         </header>
         <div className={styles.content}>
+          <div className={styles.controlRow}>
+            <span className={styles.controlLabel}>Appearance</span>
+            <div role="group" aria-label="Theme" className={styles.themeGroup}>
+              {(['auto', 'light', 'dark'] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  aria-pressed={theme === t}
+                  onClick={() => onThemeChange(t)}
+                  className={`${styles.themeButton} ${theme === t ? styles.themeButtonActive : ''}`}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className={styles.controlRow}>
             <span className={styles.controlLabel}>Scroll speed</span>
             {/* aria-live so screen readers announce the value change after each tap */}

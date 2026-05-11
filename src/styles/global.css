@@ -18,6 +18,25 @@
   }
 }
 
+/* Explicit theme overrides — applied when the user pins a theme in settings.
+   These sit after the media query so they win regardless of OS preference.
+   When data-theme is absent, the media query rules apply (auto mode). */
+:root[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-fg: #0f172a;
+  --color-muted: #64748b;
+  --color-accent: #1d4ed8;
+  --color-error: #dc2626;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-fg: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-accent: #60a5fa;
+  --color-error: #f87171;
+}
+
 /* Minimal reset — preserve box model sanity across browsers. */
 *,
 *::before,

@@ -60,7 +60,7 @@ afterEach(() => {
 describe('SettingsPanel — closed state', () => {
   it('renders a <dialog> element without the open attribute when open={false}', () => {
     render(
-      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const dialog = document.querySelector('dialog');
     expect(dialog).not.toBeNull();
@@ -69,7 +69,7 @@ describe('SettingsPanel — closed state', () => {
 
   it('does not make panel content reachable when open={false}', () => {
     render(
-      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.queryByRole('heading', { name: /settings/i })).toBeNull();
   });
@@ -82,7 +82,7 @@ describe('SettingsPanel — closed state', () => {
 describe('SettingsPanel — open state', () => {
   it('renders the <dialog> with the open attribute when open={true}', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const dialog = document.querySelector('dialog');
     expect(dialog?.hasAttribute('open')).toBe(true);
@@ -90,14 +90,14 @@ describe('SettingsPanel — open state', () => {
 
   it('makes the Settings heading reachable via DOM query when open={true}', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByRole('heading', { name: /settings/i })).toBeInTheDocument();
   });
 
   it('marks the dialog as aria-modal for screen readers', () => {
     const { container } = render(
-      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const dialog = container.querySelector('dialog');
     expect(dialog?.getAttribute('aria-modal')).toBe('true');
@@ -112,7 +112,7 @@ describe('SettingsPanel — Escape key', () => {
   it('calls onClose when Escape is pressed while the panel is open', () => {
     const onClose = vi.fn();
     render(
-      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -123,7 +123,7 @@ describe('SettingsPanel — Escape key', () => {
   it('does not call onClose on Escape when the panel is closed', () => {
     const onClose = vi.fn();
     render(
-      <SettingsPanel open={false} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={false} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     fireEvent.keyDown(document, { key: 'Escape' });
@@ -140,7 +140,7 @@ describe('SettingsPanel — backdrop click', () => {
   it('calls onClose when the dialog element itself is clicked', () => {
     const onClose = vi.fn();
     render(
-      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     const dialog = document.querySelector('dialog')!;
@@ -153,7 +153,7 @@ describe('SettingsPanel — backdrop click', () => {
   it('does not call onClose when an inner panel element is clicked', () => {
     const onClose = vi.fn();
     render(
-      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     // Click the heading inside the panel — this is inner content, not the backdrop.
@@ -173,7 +173,7 @@ describe('SettingsPanel — close button', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     render(
-      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={onClose} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     const closeButton = screen.getByRole('button', { name: /close settings/i });
@@ -184,7 +184,7 @@ describe('SettingsPanel — close button', () => {
 
   it('close button is a real <button> element', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const closeButton = screen.getByRole('button', { name: /close settings/i });
     expect(closeButton.tagName).toBe('BUTTON');
@@ -198,11 +198,11 @@ describe('SettingsPanel — close button', () => {
 describe('SettingsPanel — focus management', () => {
   it('moves focus to the close button when the panel opens', () => {
     const { rerender } = render(
-      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={false} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     rerender(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
 
     const closeButton = screen.getByRole('button', { name: /close settings/i });
@@ -267,7 +267,7 @@ describe('App — settings panel open and close', () => {
 describe('SettingsPanel — font-size control rendering', () => {
   it('renders the current textSizeRem value in the panel', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     // The formatted value should appear in the document (trailing zeros stripped).
     expect(screen.getByText(/1\.5rem/i)).toBeInTheDocument();
@@ -275,7 +275,7 @@ describe('SettingsPanel — font-size control rendering', () => {
 
   it('decrease button has an accessible name', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(
       screen.getByRole('button', { name: /decrease text size/i }),
@@ -284,7 +284,7 @@ describe('SettingsPanel — font-size control rendering', () => {
 
   it('increase button has an accessible name', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(
       screen.getByRole('button', { name: /increase text size/i }),
@@ -293,11 +293,11 @@ describe('SettingsPanel — font-size control rendering', () => {
 
   it('updates the displayed value when the textSizeRem prop changes', () => {
     const { rerender } = render(
-      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('1.5rem')).toBeInTheDocument();
     rerender(
-      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.625} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.625} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('1.625rem')).toBeInTheDocument();
   });
@@ -319,6 +319,8 @@ describe('SettingsPanel — font-size control interactions', () => {
         onTextSizeChange={onTextSizeChange}
         scrollIntervalMs={2000}
         onScrollIntervalChange={vi.fn()}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -339,6 +341,8 @@ describe('SettingsPanel — font-size control interactions', () => {
         onTextSizeChange={onTextSizeChange}
         scrollIntervalMs={2000}
         onScrollIntervalChange={vi.fn()}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -359,6 +363,8 @@ describe('SettingsPanel — font-size control interactions', () => {
         onTextSizeChange={onTextSizeChange}
         scrollIntervalMs={2000}
         onScrollIntervalChange={vi.fn()}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -378,6 +384,8 @@ describe('SettingsPanel — font-size control interactions', () => {
         onTextSizeChange={onTextSizeChange}
         scrollIntervalMs={2000}
         onScrollIntervalChange={vi.fn()}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -388,7 +396,7 @@ describe('SettingsPanel — font-size control interactions', () => {
 
   it('- button has the disabled attribute at minimum (1.0)', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.0} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.0} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const decreaseBtn = screen.getByRole('button', { name: /decrease text size/i });
     expect(decreaseBtn).toBeDisabled();
@@ -396,7 +404,7 @@ describe('SettingsPanel — font-size control interactions', () => {
 
   it('+ button has the disabled attribute at maximum (2.5)', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={2.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={2.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     const increaseBtn = screen.getByRole('button', { name: /increase text size/i });
     expect(increaseBtn).toBeDisabled();
@@ -436,39 +444,39 @@ describe('App — font-size control wired end-to-end', () => {
 describe('SettingsPanel — scroll-speed control rendering', () => {
   it('renders a labelled "Scroll speed" section', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText(/scroll speed/i)).toBeInTheDocument();
   });
 
   it('displays the current scrollIntervalMs as X.Ys format', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('2.0s')).toBeInTheDocument();
   });
 
   it('updates the displayed value when the scrollIntervalMs prop changes', () => {
     const { rerender } = render(
-      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('2.0s')).toBeInTheDocument();
     rerender(
-      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2200} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2200} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('2.2s')).toBeInTheDocument();
   });
 
   it('decrease scroll-interval button has an accessible name', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByRole('button', { name: /decrease scroll interval/i })).toBeInTheDocument();
   });
 
   it('increase scroll-interval button has an accessible name', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByRole('button', { name: /increase scroll interval/i })).toBeInTheDocument();
   });
@@ -490,6 +498,8 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
         onTextSizeChange={vi.fn()}
         scrollIntervalMs={2000}
         onScrollIntervalChange={onScrollIntervalChange}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -510,6 +520,8 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
         onTextSizeChange={vi.fn()}
         scrollIntervalMs={2000}
         onScrollIntervalChange={onScrollIntervalChange}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -530,6 +542,8 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
         onTextSizeChange={vi.fn()}
         scrollIntervalMs={400}
         onScrollIntervalChange={onScrollIntervalChange}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -549,6 +563,8 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
         onTextSizeChange={vi.fn()}
         scrollIntervalMs={10000}
         onScrollIntervalChange={onScrollIntervalChange}
+        theme="auto"
+        onThemeChange={vi.fn()}
       />,
     );
 
@@ -559,7 +575,7 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
 
   it('- button is disabled at minimum (400ms, displayed as 0.4s)', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={400} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={400} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('0.4s')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /decrease scroll interval/i })).toBeDisabled();
@@ -567,7 +583,7 @@ describe('SettingsPanel — scroll-speed control interactions', () => {
 
   it('+ button is disabled at maximum (10000ms, displayed as 10.0s)', () => {
     render(
-      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={10000} onScrollIntervalChange={vi.fn()} />,
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={10000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
     );
     expect(screen.getByText('10.0s')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /increase scroll interval/i })).toBeDisabled();
@@ -612,5 +628,136 @@ describe('App — scroll-speed control wired end-to-end', () => {
     // Also verify the exact converted value (textSizeRem stays 1.5).
     const expectedSpeed = intervalMsToPxPerFrame(2200, 1.5);
     expect(newSpeed).toBeCloseTo(expectedSpeed, 10);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Theme toggle — rendering
+// ---------------------------------------------------------------------------
+
+describe('SettingsPanel — theme buttons rendering', () => {
+  it('renders three theme buttons labeled Auto, Light, Dark', () => {
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: 'Auto' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Light' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dark' })).toBeInTheDocument();
+  });
+
+  it('marks the Auto button aria-pressed=true when theme is auto', () => {
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: 'Auto' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Light' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('marks the Dark button aria-pressed=true when theme is dark', () => {
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="dark" onThemeChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Auto' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Light' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('marks the Light button aria-pressed=true when theme is light', () => {
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="light" onThemeChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: 'Light' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Auto' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Theme toggle — interactions
+// ---------------------------------------------------------------------------
+
+describe('SettingsPanel — theme button interactions', () => {
+  it('clicking Light calls onThemeChange with light', async () => {
+    const user = userEvent.setup();
+    const onThemeChange = vi.fn();
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={onThemeChange} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Light' }));
+
+    expect(onThemeChange).toHaveBeenCalledOnce();
+    expect(onThemeChange).toHaveBeenCalledWith('light');
+  });
+
+  it('clicking Dark calls onThemeChange with dark', async () => {
+    const user = userEvent.setup();
+    const onThemeChange = vi.fn();
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="auto" onThemeChange={onThemeChange} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Dark' }));
+
+    expect(onThemeChange).toHaveBeenCalledOnce();
+    expect(onThemeChange).toHaveBeenCalledWith('dark');
+  });
+
+  it('clicking Auto calls onThemeChange with auto', async () => {
+    const user = userEvent.setup();
+    const onThemeChange = vi.fn();
+    render(
+      <SettingsPanel open={true} onClose={vi.fn()} textSizeRem={1.5} onTextSizeChange={vi.fn()} scrollIntervalMs={2000} onScrollIntervalChange={vi.fn()} theme="light" onThemeChange={onThemeChange} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Auto' }));
+
+    expect(onThemeChange).toHaveBeenCalledOnce();
+    expect(onThemeChange).toHaveBeenCalledWith('auto');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Theme toggle — App-level integration
+// ---------------------------------------------------------------------------
+
+describe('App — theme toggle wired end-to-end', () => {
+  afterEach(() => {
+    // Reset the data-theme attribute so subsequent tests see a clean slate.
+    delete document.documentElement.dataset.theme;
+  });
+
+  it('clicking Dark in the settings panel sets document.documentElement.dataset.theme to dark', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /open settings/i }));
+    await user.click(screen.getByRole('button', { name: 'Dark' }));
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+
+  it('clicking Light in the settings panel sets document.documentElement.dataset.theme to light', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /open settings/i }));
+    await user.click(screen.getByRole('button', { name: 'Light' }));
+
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('clicking Auto in the settings panel removes document.documentElement.dataset.theme', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    // First pin to dark, then revert to auto.
+    await user.click(screen.getByRole('button', { name: /open settings/i }));
+    await user.click(screen.getByRole('button', { name: 'Dark' }));
+    expect(document.documentElement.dataset.theme).toBe('dark');
+
+    await user.click(screen.getByRole('button', { name: 'Auto' }));
+    expect(document.documentElement.dataset.theme).toBeUndefined();
   });
 });

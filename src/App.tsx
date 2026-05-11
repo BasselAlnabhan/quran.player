@@ -24,7 +24,17 @@ export default function App() {
   );
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { settings, setTextSize, setScrollInterval } = useSettings();
+  const { settings, setTheme, setTextSize, setScrollInterval } = useSettings();
+
+  // Write the chosen theme to <html data-theme="..."> so CSS overrides apply.
+  // Deleting the attribute (auto mode) lets the OS prefers-color-scheme rule win.
+  useEffect(() => {
+    if (settings.theme === 'auto') {
+      delete document.documentElement.dataset.theme;
+    } else {
+      document.documentElement.dataset.theme = settings.theme;
+    }
+  }, [settings.theme]);
 
   // Compute px-per-frame from persisted interval and current text size.
   // This value flows down to ScrollControls which forwards it to the engine.
@@ -122,6 +132,8 @@ export default function App() {
         onTextSizeChange={setTextSize}
         scrollIntervalMs={settings.scrollIntervalMs}
         onScrollIntervalChange={setScrollInterval}
+        theme={settings.theme}
+        onThemeChange={setTheme}
       />
     </div>
   );
