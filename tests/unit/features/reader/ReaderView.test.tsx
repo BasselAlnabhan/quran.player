@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Quran } from '@/lib/types';
 import realQuranData from '@/data/quran.json';
@@ -164,11 +164,30 @@ describe('ReaderView — hook error', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Back button
+// Back navigation — SR-only button + Esc keyboard fallback
 // ---------------------------------------------------------------------------
 
-describe('ReaderView — back button', () => {
-  it('calls onBack when the back button is clicked', async () => {
+describe('ReaderView — back navigation', () => {
+  it('SR-only back button is in the DOM with the correct accessible label', () => {
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
+    // The button must exist for AT users; it is visually hidden but in the DOM.
+    const backButton = screen.getByRole('button', { name: /back to surah list/i });
+    expect(backButton).toBeInTheDocument();
+    expect(backButton.tagName).toBe('BUTTON');
+  });
+
+  it('calls onBack when Escape is pressed', () => {
+    const onBack = vi.fn();
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    render(<ReaderView surahNumber={1} onBack={onBack} textSizeRem={1.5} pxPerFrame={0.4} />);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(onBack).toHaveBeenCalledOnce();
+  });
+
+  it('calls onBack when the SR-only back button is clicked', async () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
@@ -179,21 +198,14 @@ describe('ReaderView — back button', () => {
 
     expect(onBack).toHaveBeenCalledOnce();
   });
-
-  it('back button is a real <button> element with an accessible label', () => {
-    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
-    render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
-    const backButton = screen.getByRole('button', { name: /back to surah list/i });
-    expect(backButton.tagName).toBe('BUTTON');
-  });
 });
 
 // ---------------------------------------------------------------------------
-// ScrollControls integration — both the back button and scroll controls render
+// ScrollControls integration — SR-only button and scroll controls both render
 // ---------------------------------------------------------------------------
 
 describe('ReaderView — ScrollControls integration', () => {
-  it('renders scroll controls alongside the back button in a valid ReaderView', () => {
+  it('renders scroll controls alongside the SR-only back button in a valid ReaderView', () => {
     mockUseQuranData.mockReturnValue({
       data: {
         surahs: [
@@ -210,7 +222,7 @@ describe('ReaderView — ScrollControls integration', () => {
 
     render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} pxPerFrame={0.4} />);
 
-    // The back button must be present.
+    // The SR-only back button must be present for AT users.
     expect(screen.getByRole('button', { name: /back to surah list/i })).toBeInTheDocument();
 
     // ScrollControls must also be rendered inside the reader.

@@ -155,7 +155,7 @@ describe('App — surah picker integration', () => {
     await user.click(pickerButtons[0]!);
 
     await waitFor(() => {
-      // ReaderView renders an RTL Arabic text block and a back button.
+      // ReaderView renders an RTL Arabic text block and the SR-only back button.
       expect(document.querySelector('[dir="rtl"][lang="ar"]')).not.toBeNull();
       expect(
         screen.getByRole('button', { name: /back to surah list/i }),
@@ -172,7 +172,7 @@ describe('App — surah picker integration', () => {
     await user.click(pickerButtons[6]!); // surah 7 is index 6
 
     await waitFor(() => {
-      // ReaderView for any valid surah shows the RTL block and back button.
+      // ReaderView for any valid surah shows the RTL block and SR-only back button.
       expect(document.querySelector('[dir="rtl"][lang="ar"]')).not.toBeNull();
       expect(
         screen.getByRole('button', { name: /back to surah list/i }),

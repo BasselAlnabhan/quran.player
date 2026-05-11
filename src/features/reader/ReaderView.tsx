@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useQuranData } from '@/hooks/useQuranData';
+import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { getSurah } from '@/lib/quran';
 import ScrollControls from './ScrollControls';
 import TajweedAyah from './TajweedAyah';
@@ -14,12 +16,26 @@ type Props = {
 export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFrame }: Props) {
   const { data, error } = useQuranData();
 
+  // Swipe gesture handles the primary back navigation on touch devices.
+  useSwipeBack(onBack);
+
+  // Esc key provides a keyboard fallback for sighted users who don't use a
+  // pointing device. The listener is on document so it works regardless of
+  // which child element has focus.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onBack();
+      }
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onBack]);
+
   if (error) {
     return (
       <div className={styles.container}>
-        <button type="button" className={styles.backButton} onClick={onBack}>
-          Back to surah list
-        </button>
         <p className={styles.error} role="alert">
           Failed to load Quran data: {error.message}
         </p>
@@ -42,9 +58,6 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFram
   if (!surah) {
     return (
       <div className={styles.container}>
-        <button type="button" className={styles.backButton} onClick={onBack}>
-          Back to surah list
-        </button>
         <p className={styles.error} role="alert">
           Surah {surahNumber} not found. Please select a valid surah (1–114).
         </p>
@@ -54,7 +67,10 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem, pxPerFram
 
   return (
     <div className={styles.container}>
-      <button type="button" className={styles.backButton} onClick={onBack}>
+      {/* SR-only button: visually hidden but reachable via Tab for AT users.
+          The :focus rule in the CSS reveals it when keyboard-focused (skip-link
+          pattern), giving sighted keyboard users a visible target too. */}
+      <button type="button" onClick={onBack} className={styles.srOnly}>
         Back to surah list
       </button>
       {/* dir and lang on the text block so auto-scroll engine and AT see the RTL context.

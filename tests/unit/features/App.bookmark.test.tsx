@@ -6,7 +6,7 @@
  * and cleanup on unmount.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Quran } from '@/lib/types';
 import type { ScrollEngine } from '@/lib/scroll-engine';
@@ -81,7 +81,7 @@ describe('App — resume from bookmark on mount', () => {
 
     render(<App />);
 
-    // The reader renders the back button; picker has 114 surah buttons but no back button.
+    // The reader keeps a screen-reader-only back button; picker has 114 surah buttons.
     expect(screen.getByRole('button', { name: /back to surah list/i })).toBeInTheDocument();
   });
 
@@ -267,16 +267,13 @@ describe('App — cleanup on unmount', () => {
 // ---------------------------------------------------------------------------
 
 describe('App — back to picker', () => {
-  it('keeps the bookmark in storage when the back button is pressed', async () => {
-    const user = userEvent.setup();
-
+  it('keeps the bookmark in storage when navigating back via Esc', async () => {
     bookmarkLib.saveBookmark({ surahNumber: 5, scrollY: 200 });
 
     render(<App />);
 
-    // The reader is shown (bookmark resumed surah 5); press back.
-    const backButton = screen.getByRole('button', { name: /back to surah list/i });
-    await user.click(backButton);
+    // The reader is shown (bookmark resumed surah 5); press Esc to go back.
+    fireEvent.keyDown(document, { key: 'Escape' });
 
     await waitFor(() => {
       // After going back, the bookmark must still be in storage.
