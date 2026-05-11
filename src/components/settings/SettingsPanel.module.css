@@ -54,7 +54,7 @@
 }
 
 .title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
@@ -96,13 +96,16 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 500;
 }
 
 .controlValue {
-  font-size: 0.9rem;
-  color: var(--color-muted);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  /* Use the main foreground colour rather than --color-muted; values are
+     primary information, not chrome — they deserve full contrast. */
+  color: var(--color-fg);
   /* tabular-nums prevents layout shifts as digit widths vary between values */
   font-variant-numeric: tabular-nums;
   min-width: 4.5rem;
@@ -147,7 +150,7 @@
   border: 1px solid var(--color-muted);
   cursor: pointer;
   color: var(--color-fg);
-  font-size: 0.875rem;
+  font-size: 1rem;
   /* ≥44px tap target per WCAG 2.5.5 */
   min-width: 44px;
   min-height: 44px;
