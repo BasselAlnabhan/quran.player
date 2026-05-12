@@ -1,0 +1,21 @@
+name: quran-reader
+
+services:
+  quran-reader:
+    image: ghcr.io/basselalnabhan/quran-reader:latest
+    container_name: quran-reader
+    restart: unless-stopped
+    # No host port published — Nginx Proxy Manager reaches this container
+    # by name on the shared proxy network, port 80 internally.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ > /dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
