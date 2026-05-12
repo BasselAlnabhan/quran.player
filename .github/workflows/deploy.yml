@@ -120,7 +120,11 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: ${{ secrets.DEPLOY_PORT || 22 }}
+          # Fail fast — without `set -e` a `docker compose pull` failure was
+          # silently swallowed; the prune step's exit 0 reported the whole
+          # script as successful even though the container never restarted.
           script: |
+            set -euo pipefail
             cd ~/quran-reader
             docker compose pull
             docker compose up -d
