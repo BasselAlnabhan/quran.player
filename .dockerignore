@@ -1,0 +1,35 @@
+# build artifacts
+node_modules/
+dist/
+dist-ssr/
+coverage/
+coverage-out/
+
+# version control
+.git/
+.github/
+
+# claude agent config
+.claude/
+
+# test and doc sources — not needed for the production image
+tests/
+docs/
+scripts/
+
+# deployment config
+deploy/
+
+# environment secrets
+.env
+.env.*
+
+# editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# human-facing docs — not needed inside the image
+README.md
+CLAUDE.md
