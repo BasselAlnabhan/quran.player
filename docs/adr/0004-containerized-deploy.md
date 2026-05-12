@@ -42,6 +42,18 @@ CLAUDE.md quality gates.
    NPM holds the Let's Encrypt certificate for `quran.basselalnabhan.se` and
    proxies HTTPS inbound to the container over that shared network.
 
+5. **Deploy network access via Tailscale, not public-internet SSH.** The VPS
+   firewall blocks port 22 to all non-tailnet IPs. GitHub Actions runners are
+   not on the tailnet by default. The workflow adds a `tailscale/github-action@v3`
+   step before the scp/ssh steps; the runner joins the tailnet as an ephemeral
+   node authenticated via a short-lived auth key minted from an OAuth client
+   (scope `auth_keys`, tag `tag:ci-github`). The ephemeral node disappears when
+   the job ends — no long-lived runner identity on the tailnet. The trade-off is
+   one external network dependency (Tailscale's control plane) during deploys,
+   and the OAuth client credentials replace a static SSH-key-only trust chain;
+   both are acceptable given the security upside of never exposing port 22
+   publicly.
+
 ## Consequences
 
 - GHCR is free for public repos; private repos incur cost gated on repo
@@ -64,3 +76,7 @@ CLAUDE.md quality gates.
 - The CI `test` job runs on all `push` and `pull_request` events, including from
   forks. Fork workflows cannot read repository secrets, so the deploy step never
   fires for fork PRs — the standard correct posture for public repos.
+- The deploy now has a hard dependency on Tailscale's control plane
+  (`controlplane.tailscale.com`) being reachable for the OAuth → auth-key
+  exchange. A Tailscale outage blocks deploys but does NOT block end-user
+  traffic, which is served by NPM + the already-running container.

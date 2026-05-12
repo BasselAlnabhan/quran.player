@@ -58,13 +58,32 @@ deploy workflow will succeed:
 
 | Secret | Purpose |
 |---|---|
-| `DEPLOY_HOST` | VPS hostname or IP address |
+| `DEPLOY_HOST` | VPS's **Tailscale IP** (e.g. `100.x.y.z`) — public IP/hostname won't work because port 22 is tailnet-only |
 | `DEPLOY_USER` | SSH username (currently `root`; see one-time setup below) |
 | `DEPLOY_SSH_KEY` | Private SSH key (PEM format) for the SSH user |
 | `DEPLOY_PORT` | SSH port — optional, defaults to 22 |
+| `TS_OAUTH_CLIENT_ID` | Tailscale OAuth client ID (scope `auth_keys`, tag `tag:ci-github`) |
+| `TS_OAUTH_SECRET` | Tailscale OAuth client secret matching the above ID |
 
 `GITHUB_TOKEN` is provided automatically by GitHub Actions for the GHCR push
 and does not need to be created manually.
+
+### Tailscale
+
+Port 22 on the VPS is firewalled to the tailnet only — public-internet SSH is
+closed. The deploy workflow uses `tailscale/github-action@v3` to join the
+tailnet as an ephemeral, tagged node for the duration of the deploy job; the
+node auto-deletes after the job ends.
+
+One-time Tailscale admin steps:
+
+1. In the ACL editor (<https://login.tailscale.com/admin/acls>), add
+   `"tagOwners": { "tag:ci-github": ["autogroup:admin"] }` and an `acls` rule
+   accepting `src: ["tag:ci-github"]` → `dst: ["<vps-tailscale-ip>:22"]`.
+2. In OAuth clients (<https://login.tailscale.com/admin/settings/oauth>),
+   generate a new client with scope `auth_keys` (write) and the `tag:ci-github`
+   tag attached. Save the client ID and secret to GitHub secrets
+   `TS_OAUTH_CLIENT_ID` / `TS_OAUTH_SECRET`.
 
 ### One-time VPS setup
 
