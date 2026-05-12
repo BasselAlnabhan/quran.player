@@ -69,10 +69,19 @@ Node version: 20.x LTS or newer.
 quran-reader/
 ├── CLAUDE.md                 ← you are here
 ├── README.md                 ← user-facing
+├── Dockerfile                ← multi-stage build (node:20-alpine → nginx:1.27-alpine)
+├── .dockerignore
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
 ├── index.html
+├── .github/
+│   └── workflows/
+│       └── deploy.yml        ← CI: test → build image → push GHCR → SSH deploy
+├── deploy/
+│   └── docker-compose.yml    ← production compose file copied to VPS on each deploy
+├── nginx/
+│   └── default.conf          ← SPA fallback, immutable asset caching, security headers
 ├── public/
 │   ├── icons/                ← PWA icons (192, 512, maskable)
 │   └── manifest.webmanifest
