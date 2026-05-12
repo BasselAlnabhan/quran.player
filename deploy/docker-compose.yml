@@ -2,7 +2,7 @@ name: quran-reader
 
 services:
   quran-reader:
-    image: ghcr.io/basselalnabhan/quran-reader:latest
+    image: ghcr.io/basselalnabhan/quran.player:latest
     container_name: quran-reader
     restart: unless-stopped
     # No host port published — Nginx Proxy Manager reaches this container
