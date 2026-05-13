@@ -52,14 +52,15 @@ html {
   font-size: 100%;
 }
 
-/* Only enable smooth scrolling when the user has not requested reduced motion.
-   Defaults to no animation for users who haven't set a preference, which is the
-   safer default for vestibular-sensitive users. */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
+/* No CSS smooth-scroll. The auto-scroll engine drives window.scrollTo ~60×/sec
+   from a requestAnimationFrame loop; with `scroll-behavior: smooth` set, iOS
+   Safari was coalescing those calls into queued smooth-scroll animations,
+   producing zero visible motion even though the engine was ticking and the
+   play/stop button state was toggling correctly. The engine still passes
+   `behavior: 'instant'` defensively, but removing the CSS rule means any code
+   path (engine, bookmark restore, etc.) that calls scrollTo is instant by
+   default — there are no anchor links or in-page jumps in the app that
+   benefited from the smooth behavior. */
 
 body {
   background-color: var(--color-bg);
