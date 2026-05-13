@@ -18,8 +18,11 @@ export type UseScrollEngineResult = {
 function buildEngine(prefersReducedMotion: boolean): ScrollEngine {
   return createScrollEngine({
     getScrollY: () => window.scrollY,
-    // 'auto' behavior avoids compounding with the engine's own per-frame smoothing.
-    setScrollY: (y) => window.scrollTo(0, y),
+    // 'instant' bypasses the CSS `scroll-behavior: smooth` on <html>. Without
+    // it, every rAF-driven scrollTo queues a smooth-scroll animation, which
+    // mobile browsers throttle or coalesce — manifesting as "auto-scroll
+    // doesn't move the page" on iOS even though the engine is ticking.
+    setScrollY: (y) => window.scrollTo({ top: y, left: 0, behavior: 'instant' }),
     getContentHeight: () => document.documentElement.scrollHeight,
     getViewportHeight: () => window.innerHeight,
     initialSpeed: DEFAULT_SPEED,

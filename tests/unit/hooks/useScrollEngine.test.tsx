@@ -121,6 +121,41 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
+// setScrollY — regression: must use behavior:'instant' to bypass CSS smooth-scroll
+// ---------------------------------------------------------------------------
+
+describe('useScrollEngine — setScrollY uses behavior: instant', () => {
+  it('calls window.scrollTo with behavior "instant", not the two-argument form', () => {
+    mockMatchMediaReducedMotion(false);
+
+    // Capture the options passed to createScrollEngine so we can invoke
+    // the real setScrollY callback and verify the window.scrollTo call shape.
+    let capturedSetScrollY: ((y: number) => void) | undefined;
+    mockCreateScrollEngine.mockImplementation((opts) => {
+      capturedSetScrollY = opts.setScrollY;
+      return makeEngineMock();
+    });
+
+    const scrollToSpy = vi.fn();
+    vi.stubGlobal('scrollTo', scrollToSpy);
+
+    renderHook(() => useScrollEngine());
+
+    expect(capturedSetScrollY).toBeDefined();
+    // Call the captured callback with an arbitrary scroll position.
+    capturedSetScrollY!(200);
+
+    // Must NOT be called with the two-argument form — that form honours CSS
+    // scroll-behavior: smooth, causing mobile browsers to coalesce/throttle
+    // rAF-driven updates so the page never visibly scrolls.
+    expect(scrollToSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ behavior: 'instant' }),
+    );
+    expect(scrollToSpy).not.toHaveBeenCalledWith(0, 200);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // handleChange — OS prefers-reduced-motion change event
 // ---------------------------------------------------------------------------
 
