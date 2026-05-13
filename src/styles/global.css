@@ -52,15 +52,15 @@ html {
   font-size: 100%;
 }
 
-/* No CSS smooth-scroll. The auto-scroll engine drives window.scrollTo ~60×/sec
-   from a requestAnimationFrame loop; with `scroll-behavior: smooth` set, iOS
-   Safari was coalescing those calls into queued smooth-scroll animations,
-   producing zero visible motion even though the engine was ticking and the
-   play/stop button state was toggling correctly. The engine still passes
-   `behavior: 'instant'` defensively, but removing the CSS rule means any code
-   path (engine, bookmark restore, etc.) that calls scrollTo is instant by
-   default — there are no anchor links or in-page jumps in the app that
-   benefited from the smooth behavior. */
+/* No CSS smooth-scroll. The auto-scroll engine drives scroll position ~60×/sec
+   from a requestAnimationFrame loop; with `scroll-behavior: smooth` set, every
+   per-frame scroll update gets queued as a smooth-scroll animation and iOS
+   Safari coalesces those into no visible motion. The engine writes scroll
+   position via direct `scrollTop` assignment now (see useScrollEngine.ts) which
+   bypasses the scrollTo path entirely, but keeping CSS smooth-scroll off also
+   makes bookmark restore and any future scroll calls instant by default — the
+   app has no anchor links or in-page jumps that would have benefited from
+   smooth behavior. */
 
 body {
   background-color: var(--color-bg);

@@ -17,12 +17,18 @@ export type UseScrollEngineResult = {
 
 function buildEngine(prefersReducedMotion: boolean): ScrollEngine {
   return createScrollEngine({
-    getScrollY: () => window.scrollY,
-    // 'instant' bypasses the CSS `scroll-behavior: smooth` on <html>. Without
-    // it, every rAF-driven scrollTo queues a smooth-scroll animation, which
-    // mobile browsers throttle or coalesce — manifesting as "auto-scroll
-    // doesn't move the page" on iOS even though the engine is ticking.
-    setScrollY: (y) => window.scrollTo({ top: y, left: 0, behavior: 'instant' }),
+    getScrollY: () =>
+      document.documentElement.scrollTop || document.body.scrollTop || 0,
+    // Belt-and-suspenders direct property assignment instead of window.scrollTo:
+    // iOS Safari has been observed to silently swallow rAF-driven scrollTo calls
+    // regardless of behavior: 'instant'. Setting scrollTop directly on both
+    // documentElement and body covers any historical iOS quirk where body was
+    // the scrolling root rather than documentElement. The non-scrolling one
+    // ignores the assignment harmlessly.
+    setScrollY: (y) => {
+      document.documentElement.scrollTop = y;
+      document.body.scrollTop = y;
+    },
     getContentHeight: () => document.documentElement.scrollHeight,
     getViewportHeight: () => window.innerHeight,
     initialSpeed: DEFAULT_SPEED,

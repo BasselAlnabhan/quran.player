@@ -121,15 +121,14 @@ afterEach(() => {
 });
 
 // ---------------------------------------------------------------------------
-// setScrollY — regression: must use behavior:'instant' to bypass CSS smooth-scroll
+// setScrollY — regression: must use direct scrollTop assignment, not window.scrollTo
 // ---------------------------------------------------------------------------
 
-describe('useScrollEngine — setScrollY uses behavior: instant', () => {
-  it('calls window.scrollTo with behavior "instant", not the two-argument form', () => {
+describe('useScrollEngine — setScrollY uses direct scrollTop assignment, not window.scrollTo', () => {
+  it('sets document.documentElement.scrollTop and document.body.scrollTop, never calls window.scrollTo', () => {
     mockMatchMediaReducedMotion(false);
 
-    // Capture the options passed to createScrollEngine so we can invoke
-    // the real setScrollY callback and verify the window.scrollTo call shape.
+    // Capture the setScrollY callback the hook passes into createScrollEngine.
     let capturedSetScrollY: ((y: number) => void) | undefined;
     mockCreateScrollEngine.mockImplementation((opts) => {
       capturedSetScrollY = opts.setScrollY;
@@ -142,16 +141,16 @@ describe('useScrollEngine — setScrollY uses behavior: instant', () => {
     renderHook(() => useScrollEngine());
 
     expect(capturedSetScrollY).toBeDefined();
-    // Call the captured callback with an arbitrary scroll position.
-    capturedSetScrollY!(200);
 
-    // Must NOT be called with the two-argument form — that form honours CSS
-    // scroll-behavior: smooth, causing mobile browsers to coalesce/throttle
-    // rAF-driven updates so the page never visibly scrolls.
-    expect(scrollToSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ behavior: 'instant' }),
-    );
-    expect(scrollToSpy).not.toHaveBeenCalledWith(0, 200);
+    // Invoke the callback with an arbitrary scroll position.
+    capturedSetScrollY!(100);
+
+    // jsdom supports scrollTop assignment — verify both roots are written.
+    expect(document.documentElement.scrollTop).toBe(100);
+    expect(document.body.scrollTop).toBe(100);
+
+    // Guard against regressing to the broken window.scrollTo pattern.
+    expect(scrollToSpy).not.toHaveBeenCalled();
   });
 });
 
