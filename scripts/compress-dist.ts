@@ -1,11 +1,15 @@
-#!/usr/bin/env node
-// Post-build asset pre-compression. Walks dist/ and writes a .gz alongside
-// every text asset that's worth compressing. nginx serves the .gz directly
-// via `gzip_static on` so it doesn't have to gzip on every request — and at
-// level 9 the resulting file is ~5% smaller than nginx's default level 6.
-// woff2 / images / pre-compressed JSON are skipped (already compressed).
+/**
+ * Post-build asset pre-compression. Walks dist/ and writes a .gz alongside
+ * every text asset that's worth compressing. nginx serves the .gz directly
+ * via `gzip_static on` so it doesn't have to gzip on every request — and at
+ * level 9 the resulting file is ~5% smaller than nginx's default level 6.
+ * woff2 / images / pre-compressed assets are skipped (already compressed).
+ *
+ * Run after vite build:
+ *   tsx scripts/compress-dist.ts
+ */
 
-import { readdir, stat, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { gzipSync, constants } from 'node:zlib';
 import { join, extname } from 'node:path';
 
@@ -26,7 +30,7 @@ let totalIn = 0;
 let totalOut = 0;
 let count = 0;
 
-async function walk(dir) {
+async function walk(dir: string): Promise<void> {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) {
@@ -51,6 +55,6 @@ async function walk(dir) {
 await walk(ROOT);
 const saved = totalIn - totalOut;
 const pct = totalIn > 0 ? ((saved / totalIn) * 100).toFixed(1) : '0.0';
-console.log(
+console.warn(
   `compressed ${count} files: ${(totalIn / 1024).toFixed(1)} KB -> ${(totalOut / 1024).toFixed(1)} KB (-${pct}%)`,
 );
