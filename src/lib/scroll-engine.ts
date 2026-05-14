@@ -28,17 +28,12 @@ export type ScrollEngine = {
 // swallowed. setInterval sidesteps that browser quirk entirely.
 const FRAME_MS = 16; // ~60fps
 
-// Number of consecutive no-change ticks before the engine concludes it has
-// reached the bottom. 30 ticks ≈ 0.5 s — enough to absorb fractional-speed
-// integer-rounding without false-positiving.
-const STUCK_THRESHOLD = 30;
-
 export function createScrollEngine(opts: ScrollEngineOptions): ScrollEngine {
   const {
     getScrollY,
     setScrollY,
     // getContentHeight and getViewportHeight are optional dead parameters — tick()
-    // uses no-change detection instead of explicit maxScroll math, so these are
+    // uses the accumulator pattern instead of explicit maxScroll math, so these are
     // kept only for API compatibility with existing callers.
     getContentHeight,
     getViewportHeight,
@@ -66,44 +61,39 @@ export function createScrollEngine(opts: ScrollEngineOptions): ScrollEngine {
   // visibilitychange handler knows to resume on tab-visible.
   let pausedByVisibility = false;
 
-  // Tracks consecutive ticks where scrollTop did not change after our write.
-  // Reset on start() so a fresh start always gets a full grace period.
-  let stuckCount = 0;
+  // Accumulates fractional speed across ticks. iOS Safari floors fractional
+  // scrollTop writes to integers, so we only write when a full pixel has built
+  // up. This prevents the fractional-speed write from being a no-op every tick.
+  let scrollAccumulator = 0;
 
   function tick(): void {
     if (!_isRunning) return;
 
-    // Speed of 0 is a deliberate freeze — skip no-change accounting entirely.
+    // Speed of 0 is a deliberate freeze — skip accumulation entirely.
     // The engine stays "running" so the caller's play/pause button stays in sync;
     // when speed is raised again, motion resumes immediately on the next tick.
     if (speed <= 0) return;
 
-    const before = getScrollY();
-    setScrollY(before + speed);
-    const after = getScrollY();
+    scrollAccumulator += speed;
+    // Not yet enough fractional pixels to make a whole-pixel move.
+    if (scrollAccumulator < 1) return;
 
-    // If the actual scroll position didn't move after our write, we may have
-    // reached the bottom (or the scroll API isn't responding). Allow
-    // STUCK_THRESHOLD ticks of grace because fractional speed (e.g. 0.5)
-    // accumulates to one whole pixel only every other tick on browsers that
-    // round scrollTop to integers.
-    if (after === before) {
-      stuckCount++;
-      if (stuckCount >= STUCK_THRESHOLD) {
-        _isRunning = false;
-        if (intervalId !== null) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      }
-    } else {
-      stuckCount = 0;
-    }
+    const delta = Math.floor(scrollAccumulator);
+    scrollAccumulator -= delta;
+
+    const before = getScrollY();
+    setScrollY(before + delta);
+
+    // No "auto-stop at end of content" — iOS Safari's stale scrollTop reads
+    // false-positive that logic and silently halt the engine before any
+    // scroll has visibly happened. User presses stop manually; browser
+    // clamps scrollTop at content end so there's no harm in keeping the
+    // interval alive.
   }
 
   function start(): void {
     if (destroyed || prefersReducedMotion || _isRunning) return;
-    stuckCount = 0;
+    scrollAccumulator = 0;
     _isRunning = true;
     intervalId = setInterval(tick, FRAME_MS);
   }
@@ -137,7 +127,7 @@ export function createScrollEngine(opts: ScrollEngineOptions): ScrollEngine {
       // Tab became visible again.
       if (pausedByVisibility) {
         pausedByVisibility = false;
-        stuckCount = 0;
+        scrollAccumulator = 0;
         _isRunning = true;
         intervalId = setInterval(tick, FRAME_MS);
       }

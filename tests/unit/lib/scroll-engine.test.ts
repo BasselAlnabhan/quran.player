@@ -150,8 +150,8 @@ describe('createScrollEngine — speed = 0', () => {
 
     engine.start();
     engine.setSpeed(0);
-    // tick() returns early when speed<=0, so no-change accounting is skipped.
-    // Advance well past STUCK_THRESHOLD to confirm the engine does not auto-stop.
+    // tick() returns early when speed<=0, so the accumulator is never touched.
+    // Engine stays running indefinitely; user must press stop manually.
     advanceTicks(40);
 
     expect(engine.isRunning()).toBe(true);
@@ -192,7 +192,7 @@ describe('createScrollEngine — speed = 0', () => {
     engine.start();
     engine.setSpeed(0);
 
-    // Advance STUCK_THRESHOLD + 10 ticks — engine must remain running.
+    // Advance 40 ticks — engine must remain running indefinitely.
     advanceTicks(40);
 
     expect(engine.isRunning()).toBe(true);
@@ -230,87 +230,95 @@ describe('createScrollEngine — mid-scroll speed change', () => {
 });
 
 // ---------------------------------------------------------------------------
-// End of content — no-change detection
+// Fractional-speed accumulator
 //
-// The engine uses no-change detection (STUCK_THRESHOLD = 30 ticks) rather
-// than computing maxScroll. Tests simulate a clamped setScrollY so the actual
-// scroll position stops changing at the ceiling.
+// The engine accumulates sub-pixel speed values and only writes a whole-pixel
+// delta once the accumulator reaches >= 1. This prevents iOS Safari from
+// treating each fractional write as a no-op (it floors scrollTop to integers).
 // ---------------------------------------------------------------------------
 
-describe('createScrollEngine — end of content', () => {
-  it('stops scrolling after STUCK_THRESHOLD consecutive no-change ticks', () => {
-    const CEILING = 500;
-    let scrollY = 490;
-    const opts = makeOpts({
-      getScrollY: () => scrollY,
-      setScrollY: (y) => {
-        // Clamp at ceiling to simulate bottom of page.
-        scrollY = Math.min(y, CEILING);
-      },
-      initialSpeed: 10,
-    });
-    const engine = createScrollEngine(opts);
-
-    engine.start();
-    // First tick: 490 + 10 = 500 (at ceiling, scrollY changes to 500).
-    advanceTicks(1);
-    expect(scrollY).toBe(CEILING);
-    expect(engine.isRunning()).toBe(true); // not yet stuck
-
-    // Advance 30 more ticks — each writes 510 but gets clamped to 500 (no change).
-    advanceTicks(30);
-
-    expect(engine.isRunning()).toBe(false);
-  });
-
-  it('does not call setScrollY again after stopping at end of content', () => {
-    const CEILING = 500;
-    let scrollY = 490;
+describe('createScrollEngine — fractional-speed accumulator', () => {
+  it('does not write scrollTop after 1 tick at speed=0.5 (accumulator < 1)', () => {
+    let scrollY = 0;
     const setScrollY = vi.fn((y: number) => {
-      scrollY = Math.min(y, CEILING);
+      scrollY = y;
     });
     const opts = makeOpts({
       getScrollY: () => scrollY,
       setScrollY,
-      initialSpeed: 10,
+      initialSpeed: 0.5,
     });
     const engine = createScrollEngine(opts);
 
     engine.start();
-    advanceTicks(1 + 30); // 1 tick to reach ceiling + 30 stuck ticks to stop
+    advanceTicks(1); // accumulator = 0.5, still < 1 — no write
 
-    const callsAtStop = setScrollY.mock.calls.length;
-    advanceTicks(5); // interval is cleared — no more calls
-    expect(setScrollY.mock.calls.length).toBe(callsAtStop);
+    expect(setScrollY).not.toHaveBeenCalled();
+    expect(scrollY).toBe(0);
     engine.destroy();
   });
 
-  it('resets stuckCount on start() so a fresh start after auto-stop works', () => {
-    const CEILING = 500;
-    let scrollY = 490;
+  it('writes scrollTop=1 after 2 ticks at speed=0.5 (accumulator reaches 1)', () => {
+    let scrollY = 0;
+    const opts = makeOpts({
+      getScrollY: () => scrollY,
+      setScrollY: (y) => {
+        scrollY = y;
+      },
+      initialSpeed: 0.5,
+    });
+    const engine = createScrollEngine(opts);
+
+    engine.start();
+    advanceTicks(2); // accumulator: 0.5 → 1 → delta=1, acc=0; scrollY=1
+
+    expect(scrollY).toBe(1);
+    engine.destroy();
+  });
+
+  it('carries fractional remainder forward: speed=1.5, tick1→scrollY=1, tick2→scrollY=3', () => {
+    let scrollY = 0;
+    const opts = makeOpts({
+      getScrollY: () => scrollY,
+      setScrollY: (y) => {
+        scrollY = y;
+      },
+      initialSpeed: 1.5,
+    });
+    const engine = createScrollEngine(opts);
+
+    engine.start();
+    advanceTicks(1); // accumulator=1.5, delta=1, acc=0.5, scrollY=1
+    expect(scrollY).toBe(1);
+
+    advanceTicks(1); // accumulator=0.5+1.5=2, delta=2, acc=0, scrollY=3
+    expect(scrollY).toBe(3);
+    engine.destroy();
+  });
+
+  it('resets accumulator on start() so stale fractional balance does not carry over', () => {
+    let scrollY = 0;
     const setScrollY = vi.fn((y: number) => {
-      scrollY = Math.min(y, CEILING);
+      scrollY = y;
     });
     const opts = makeOpts({
       getScrollY: () => scrollY,
       setScrollY,
-      initialSpeed: 10,
+      initialSpeed: 0.5,
     });
     const engine = createScrollEngine(opts);
 
-    // Run to auto-stop.
+    // Advance 1 tick to build up 0.5 in the accumulator.
     engine.start();
-    advanceTicks(1 + 30);
-    expect(engine.isRunning()).toBe(false);
-
-    // Manually reset position so there is room to scroll again.
-    scrollY = 0;
-
-    // Restart — stuckCount must be 0 so the engine doesn't immediately re-stop.
-    engine.start();
-    expect(engine.isRunning()).toBe(true);
     advanceTicks(1);
-    expect(scrollY).toBe(10); // scrolled forward
+    expect(setScrollY).not.toHaveBeenCalled(); // acc=0.5, not yet a full pixel
+
+    // Stop, then restart — accumulator must be reset to 0.
+    engine.stop();
+    engine.start();
+    advanceTicks(1); // acc starts fresh at 0.5, still < 1 — no write
+
+    expect(setScrollY).not.toHaveBeenCalled();
     engine.destroy();
   });
 });
@@ -458,55 +466,42 @@ describe('createScrollEngine — tab visibility', () => {
     engine.destroy();
   });
 
-  it('resets stuckCount when resumed after tab visibility change', () => {
-    // Simulate: engine is near the bottom (clamped scroll), tab hides, then
-    // the tab becomes visible again. The stuckCount must be cleared on resume
-    // so the engine gets a fresh STUCK_THRESHOLD grace period rather than
-    // immediately auto-stopping on the first tick.
-    const CEILING = 500;
-    let scrollY = 499;
+  it('resets accumulator on resume so stale fractional balance does not carry over', () => {
+    let scrollY = 0;
     const setScrollY = vi.fn((y: number) => {
-      scrollY = Math.min(y, CEILING);
+      scrollY = y;
     });
     const opts = makeOpts({
       getScrollY: () => scrollY,
       setScrollY,
-      initialSpeed: 10,
+      initialSpeed: 0.5,
     });
     const engine = createScrollEngine(opts);
 
     engine.start();
-    // First tick: 499 + 10 = 509 clamped to 500. scrollY changes — stuckCount stays 0.
-    advanceTicks(1);
-    expect(scrollY).toBe(CEILING);
+    advanceTicks(1); // accumulator = 0.5, no write yet
 
-    // Advance 10 ticks at ceiling — stuckCount accumulates to 10 (< STUCK_THRESHOLD).
-    advanceTicks(10);
-    expect(engine.isRunning()).toBe(true);
-
-    // Tab hides — engine pauses.
+    // Hide the tab.
     Object.defineProperty(document, 'visibilityState', {
       value: 'hidden',
       configurable: true,
     });
     document.dispatchEvent(new Event('visibilitychange'));
-    expect(engine.isRunning()).toBe(false);
 
-    // Tab becomes visible — engine resumes with stuckCount reset to 0.
+    // Resume — accumulator must be reset to 0.
     Object.defineProperty(document, 'visibilityState', {
       value: 'visible',
       configurable: true,
     });
     document.dispatchEvent(new Event('visibilitychange'));
-    expect(engine.isRunning()).toBe(true);
 
-    // Advance exactly STUCK_THRESHOLD ticks. If stuckCount was NOT reset, the
-    // engine would have had 10 + 30 = 40 > 30 ticks and would have stopped.
-    // With a proper reset, 30 ticks exactly hits the threshold and stops at the end.
-    advanceTicks(30);
-    // Engine should only now stop (fresh 30-tick grace period from resume).
-    expect(engine.isRunning()).toBe(false);
+    // After reset, first tick adds 0.5 again — still < 1, no write.
+    advanceTicks(1);
+    expect(setScrollY).not.toHaveBeenCalled();
 
+    // Second tick pushes to 1 — write happens.
+    advanceTicks(1);
+    expect(setScrollY).toHaveBeenCalledOnce();
     engine.destroy();
   });
 
@@ -632,38 +627,5 @@ describe('createScrollEngine — destroy', () => {
     const engine = createScrollEngine(makeOpts());
     engine.destroy();
     expect(() => engine.stop()).not.toThrow();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Very small viewport (edge case from CLAUDE.md)
-//
-// When content fits in the viewport, getScrollY() always returns 0 and the
-// browser refuses to move. The engine stops after STUCK_THRESHOLD ticks.
-// ---------------------------------------------------------------------------
-
-describe('createScrollEngine — very small viewport', () => {
-  it('stops after STUCK_THRESHOLD ticks when content fits in viewport', () => {
-    let scrollY = 0;
-    const setScrollY = vi.fn((y: number) => {
-      // Browser refuses to scroll past 0 when content fits in viewport.
-      scrollY = Math.max(0, Math.min(y, 0));
-    });
-    // contentHeight (300) < viewportHeight (500) — no scrollable space.
-    const opts = makeOpts({
-      getScrollY: () => scrollY,
-      setScrollY,
-      getContentHeight: () => 300,
-      getViewportHeight: () => 500,
-      initialSpeed: 1,
-    });
-    const engine = createScrollEngine(opts);
-
-    engine.start();
-    // STUCK_THRESHOLD = 30 ticks before auto-stop.
-    advanceTicks(30);
-
-    expect(engine.isRunning()).toBe(false);
-    expect(scrollY).toBe(0);
   });
 });

@@ -15,19 +15,20 @@ export type UseScrollEngineResult = {
   enableAutoScroll: () => void;
 };
 
+// scrollingElement is the spec-blessed scroll root: documentElement in standards
+// mode, body in quirks mode, and on iOS WebKit it sometimes returns body even in
+// standards mode for compatibility. Using it avoids the dual-write workaround.
+function scrollRoot(): Element {
+  return document.scrollingElement ?? document.documentElement;
+}
+
 function buildEngine(prefersReducedMotion: boolean): ScrollEngine {
   return createScrollEngine({
-    getScrollY: () =>
-      document.documentElement.scrollTop || document.body.scrollTop || 0,
-    // Belt-and-suspenders direct property assignment instead of window.scrollTo:
-    // iOS Safari has been observed to silently swallow rAF-driven scrollTo calls
-    // regardless of behavior: 'instant'. Setting scrollTop directly on both
-    // documentElement and body covers any historical iOS quirk where body was
-    // the scrolling root rather than documentElement. The non-scrolling one
-    // ignores the assignment harmlessly.
+    getScrollY: () => scrollRoot().scrollTop,
+    // Direct scrollTop assignment avoids iOS Safari silently swallowing
+    // window.scrollTo() calls regardless of behavior: 'instant'.
     setScrollY: (y) => {
-      document.documentElement.scrollTop = y;
-      document.body.scrollTop = y;
+      scrollRoot().scrollTop = y;
     },
     getContentHeight: () => document.documentElement.scrollHeight,
     getViewportHeight: () => window.innerHeight,

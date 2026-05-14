@@ -125,7 +125,7 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('useScrollEngine — setScrollY uses direct scrollTop assignment, not window.scrollTo', () => {
-  it('sets document.documentElement.scrollTop and document.body.scrollTop, never calls window.scrollTo', () => {
+  it('sets scrollingElement.scrollTop via direct assignment, never calls window.scrollTo', () => {
     mockMatchMediaReducedMotion(false);
 
     // Capture the setScrollY callback the hook passes into createScrollEngine.
@@ -145,9 +145,11 @@ describe('useScrollEngine — setScrollY uses direct scrollTop assignment, not w
     // Invoke the callback with an arbitrary scroll position.
     capturedSetScrollY!(100);
 
-    // jsdom supports scrollTop assignment — verify both roots are written.
+    // In jsdom standards mode, scrollingElement === documentElement.
+    // Verify the scrollingElement (canonical root) received the write.
+    expect((document.scrollingElement ?? document.documentElement).scrollTop).toBe(100);
+    // documentElement is the same node in jsdom standards mode — also verify directly.
     expect(document.documentElement.scrollTop).toBe(100);
-    expect(document.body.scrollTop).toBe(100);
 
     // Guard against regressing to the broken window.scrollTo pattern.
     expect(scrollToSpy).not.toHaveBeenCalled();
