@@ -15,7 +15,10 @@ coverage-out/
 # test and doc sources — not needed for the production image
 tests/
 docs/
-scripts/
+
+# scripts/ is kept in the build context because the build step now invokes
+# `tsx scripts/compress-dist.ts` to pre-compress dist/ assets. Other scripts
+# (e.g. fetch-quran.ts) are devtime-only and harmless to include.
 
 # deployment config
 deploy/
