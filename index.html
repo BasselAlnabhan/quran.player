@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
+    <!-- Preload the Quran font so the first ayah renders in Amiri Quran
+         instead of the system fallback. crossorigin is required for fonts
+         even when self-hosted. -->
+    <link
+      rel="preload"
+      href="/fonts/amiri-quran.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <title>Quran Reader</title>
   </head>
   <body>

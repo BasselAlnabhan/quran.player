@@ -35,8 +35,11 @@
 .ayahBlock {
   /* font-size satisfies the ≥1.25rem acceptance criterion */
   font-size: 1.5rem;
-  /* Generous line-height for Arabic multi-glyph stacking */
-  line-height: 2;
+  /* Comfortable for Arabic multi-glyph stacking (shaddah+kasra, dagger alif,
+     hamza-wasla mark above ٱ) without feeling sparse. Stays in sync with
+     LINE_HEIGHT_RATIO in src/lib/speed.ts so auto-scroll advances exactly one
+     line per interval. */
+  line-height: 1.8;
   /* Right-to-left continuous prose — all ayahs in one paragraph */
   text-align: right;
 }

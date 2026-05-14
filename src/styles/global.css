@@ -74,12 +74,28 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Arabic content keeps a system Arabic font stack. Selector matches the
-   ayah block (lang="ar" dir="rtl") and the Arabic surah names in the picker
-   (also lang="ar"). UI chrome — settings, buttons — defaults to Arial. */
+/* Self-hosted Amiri Quran — purpose-built for Uthmani-script Quran rendering
+   (proper hamza-wasla ٱ, dagger alif ـٰ, shaddah+kasra stacking). SIL OFL
+   license. font-display:swap means system Arabic renders first, swaps to
+   Amiri Quran when the woff2 finishes loading — no FOIT. */
+@font-face {
+  font-family: 'Amiri Quran';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/amiri-quran.woff2') format('woff2');
+  /* Arabic + Quranic ranges so the browser only requests the font when an
+     Arabic glyph is actually rendered (e.g. UI chrome stays on Arial). */
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+/* Arabic content uses Amiri Quran first, falls back to system Arabic fonts
+   while the woff2 is loading. UI chrome (settings, buttons) defaults to Arial
+   via the body rule above. */
 [lang="ar"],
 [dir="rtl"] {
   font-family:
+    'Amiri Quran',
     'Geeza Pro',
     'Arabic Typesetting',
     'Traditional Arabic',

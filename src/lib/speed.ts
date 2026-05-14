@@ -1,5 +1,5 @@
 const REM_PX = 16; // CSS rem baseline — browsers default to 16px
-const LINE_HEIGHT_RATIO = 2; // matches ReaderView.module.css line-height: 2
+const LINE_HEIGHT_RATIO = 1.8; // matches ReaderView.module.css line-height: 1.8
 const FRAME_MS = 1000 / 60; // 60fps frame budget ≈ 16.67ms
 
 /**
