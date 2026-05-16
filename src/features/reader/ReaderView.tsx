@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuranData } from '@/hooks/useQuranData';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
-import { getSurah } from '@/lib/quran';
+import { getSurah, splitBasmala } from '@/lib/quran';
 import styles from './ReaderView.module.css';
 
 type Props = {
@@ -62,6 +62,13 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) 
     );
   }
 
+  // Only inspect the first ayah — the Basmala appears mid-text in Surah 27:30
+  // (Solomon's letter) and must never be extracted from there.
+  const firstAyah = surah.ayahs[0];
+  const { basmala, rest: firstRest } = firstAyah
+    ? splitBasmala(firstAyah.text)
+    : { basmala: null, rest: '' };
+
   return (
     <div className={styles.container}>
       {/* SR-only button: visually hidden but reachable via Tab for AT users.
@@ -70,18 +77,33 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) 
       <button type="button" onClick={onBack} className={styles.srOnly}>
         Back to surah list
       </button>
+      {/* Basmala is rendered as a centered title when present; omitted for Surah 9. */}
+      {basmala !== null && (
+        <div
+          className={styles.basmala}
+          dir="rtl"
+          lang="ar"
+          style={{ fontSize: `${textSizeRem}rem` }}
+        >
+          {basmala}
+        </div>
+      )}
       {/* dir and lang on the text block so auto-scroll engine and AT see the RTL context.
           textSizeRem is applied as inline style so it overrides the CSS default immediately
           without CSS variable plumbing. */}
       <p className={styles.ayahBlock} dir="rtl" lang="ar" style={{ fontSize: `${textSizeRem}rem` }}>
-        {surah.ayahs.map((ayah) => (
-          <span key={ayah.number} data-testid="ayah">
-            {ayah.text}
-            {' '}
-            <span className={styles.ayahNumber}>({ayah.number})</span>
-            {' '}
-          </span>
-        ))}
+        {surah.ayahs.map((ayah, i) => {
+          // First ayah uses the remainder after stripping the Basmala (may be empty for Surah 1).
+          const text = basmala !== null && i === 0 ? firstRest : ayah.text;
+          return (
+            <span key={ayah.number} data-testid="ayah">
+              {text}
+              {' '}
+              <span className={styles.ayahNumber}>({ayah.number})</span>
+              {' '}
+            </span>
+          );
+        })}
       </p>
     </div>
   );

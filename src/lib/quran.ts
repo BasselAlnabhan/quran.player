@@ -2,6 +2,26 @@ import type { Quran, Surah } from '@/lib/types';
 
 export type SurahSummary = Pick<Surah, 'number' | 'name' | 'englishName'>;
 
+export const BASMALA = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
+
+/**
+ * If `text` starts with the Basmala (optionally preceded by a Unicode BOM or
+ * whitespace), returns the Basmala separately and the leading-trimmed remainder.
+ * Otherwise returns the input unchanged with basmala=null. Caller must scope
+ * this to the FIRST ayah only — the Basmala appears mid-text in Surah 27:30
+ * (Solomon's letter) and must not be extracted there.
+ */
+export function splitBasmala(text: string): { basmala: string | null; rest: string } {
+  // Strip the Unicode BOM that prefixes Al-Faatiha ayah 1, then leading whitespace.
+  // String.fromCharCode avoids embedding an irregular whitespace character in source.
+  const bomStripped = text.startsWith(String.fromCharCode(0xfeff)) ? text.slice(1) : text;
+  const trimmed = bomStripped.trimStart();
+  if (trimmed.startsWith(BASMALA)) {
+    return { basmala: BASMALA, rest: trimmed.slice(BASMALA.length).trimStart() };
+  }
+  return { basmala: null, rest: text };
+}
+
 export function getSurahList(data: Quran): SurahSummary[] {
   return data.surahs.map(({ number, name, englishName }) => ({
     number,

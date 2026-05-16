@@ -6,6 +6,7 @@ import realQuranData from '@/data/quran.json';
 // vi.mock calls are hoisted by Vitest so imports below receive the mocked versions.
 import { useQuranData } from '@/hooks/useQuranData';
 import ReaderView from '@/features/reader/ReaderView';
+import { BASMALA } from '@/lib/quran';
 
 vi.mock('@/hooks/useQuranData');
 
@@ -172,5 +173,48 @@ describe('ReaderView — textSizeRem prop', () => {
     const ayahBlock = document.querySelector<HTMLElement>('[dir="rtl"][lang="ar"]');
     expect(ayahBlock).not.toBeNull();
     expect(ayahBlock?.style.fontSize).toBe('2rem');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Basmala rendering
+// ---------------------------------------------------------------------------
+
+describe('ReaderView — Basmala title rendering', () => {
+  it('renders the Basmala as a centered title element for Surah 1 (Al-Faatiha)', () => {
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    const { container } = render(
+      <ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />,
+    );
+    // The Basmala div carries the CSS module class; query by text content as a fallback.
+    const basmalaEl = container.querySelector('[dir="rtl"][lang="ar"]:not(p)');
+    expect(basmalaEl).not.toBeNull();
+    expect(basmalaEl?.textContent).toBe(BASMALA);
+  });
+
+  it('renders the Basmala as title and remaining text for Surah 2 ayah 1', () => {
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    const { container } = render(
+      <ReaderView surahNumber={2} onBack={vi.fn()} textSizeRem={1.5} />,
+    );
+    // Basmala title element (div, not p).
+    const basmalaEl = container.querySelector('[dir="rtl"][lang="ar"]:not(p)');
+    expect(basmalaEl).not.toBeNull();
+    expect(basmalaEl?.textContent).toBe(BASMALA);
+
+    // Ayah 1's remainder "الٓمٓ" must appear in the first ayah span.
+    const ayahSpans = screen.getAllByTestId('ayah');
+    const firstAyah = ayahSpans[0];
+    expect(firstAyah?.textContent).toContain('الٓمٓ');
+  });
+
+  it('does not render a Basmala title for Surah 9 (At-Tawbah)', () => {
+    mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
+    const { container } = render(
+      <ReaderView surahNumber={9} onBack={vi.fn()} textSizeRem={1.5} />,
+    );
+    // There must be no non-paragraph rtl/ar element (the Basmala div).
+    const basmalaEl = container.querySelector('[dir="rtl"][lang="ar"]:not(p)');
+    expect(basmalaEl).toBeNull();
   });
 });

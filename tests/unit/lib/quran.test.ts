@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Quran } from '@/lib/types';
-import { getSurah, getSurahList, validateQuranData } from '@/lib/quran';
+import { BASMALA, getSurah, getSurahList, splitBasmala, validateQuranData } from '@/lib/quran';
 import realQuranData from '@/data/quran.json';
 
 // Cast the imported JSON to Quran — the validator tests confirm the shape at runtime.
@@ -187,5 +187,42 @@ describe('validateQuranData', () => {
       (ayah as unknown as Record<string, unknown>)['text'] = 99;
     }
     expect(() => validateQuranData(stub)).toThrow('missing string "text"');
+  });
+});
+
+describe('splitBasmala', () => {
+  const quranData = realQuranData as Quran;
+
+  it('extracts Basmala from Surah 1 ayah 1 (just the Basmala with BOM prefix)', () => {
+    // Surah 1 ayah 1 is the Basmala alone, prefixed with U+FEFF in the dataset.
+    const text = quranData.surahs[0]?.ayahs[0]?.text ?? '';
+    const result = splitBasmala(text);
+    expect(result.basmala).toBe(BASMALA);
+    expect(result.rest).toBe('');
+  });
+
+  it('extracts Basmala from Surah 2 ayah 1 (Basmala prepended to ayah text)', () => {
+    // Surah 2 ayah 1 starts with the Basmala followed by the actual first ayah.
+    const text = quranData.surahs[1]?.ayahs[0]?.text ?? '';
+    const result = splitBasmala(text);
+    expect(result.basmala).toBe(BASMALA);
+    expect(result.rest).toBe('الٓمٓ');
+  });
+
+  it('returns basmala=null for Surah 9 ayah 1 (no Basmala)', () => {
+    // Surah 9 (At-Tawbah) has no Basmala — unique among the 114 surahs.
+    const text = quranData.surahs[8]?.ayahs[0]?.text ?? '';
+    const result = splitBasmala(text);
+    expect(result.basmala).toBeNull();
+    expect(result.rest).toBe(text);
+  });
+
+  it('returns basmala=null when Basmala appears mid-text (Surah 27:30)', () => {
+    // Surah 27:30 is Solomon's letter, which contains the Basmala inside the verse.
+    // The helper must not extract it — only the caller scopes extraction to ayah 1.
+    const text = quranData.surahs[26]?.ayahs[29]?.text ?? '';
+    const result = splitBasmala(text);
+    expect(result.basmala).toBeNull();
+    expect(result.rest).toBe(text);
   });
 });

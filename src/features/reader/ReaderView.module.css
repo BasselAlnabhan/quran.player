@@ -32,6 +32,18 @@
   white-space: normal;
 }
 
+.basmala {
+  /* Centered title above the continuous ayah text. Uses the same font stack
+     (inherited via [lang="ar"]) and dynamic text-size as the ayah block for
+     visual consistency across all zoom levels. Slightly heavier weight so it
+     reads as a title; Amiri Quran has limited weights, so this produces a
+     bold-like rendering in most browsers. */
+  text-align: center;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
 .ayahBlock {
   /* font-size satisfies the ≥1.25rem acceptance criterion */
   font-size: 1.5rem;
