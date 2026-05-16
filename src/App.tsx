@@ -6,6 +6,7 @@ import SettingsPanel from '@/components/settings/SettingsPanel';
 import { loadBookmark, saveBookmark } from '@/lib/bookmark';
 import type { Bookmark } from '@/lib/bookmark';
 import { useSettings } from '@/hooks/useSettings';
+import { useWakeLock } from '@/hooks/useWakeLock';
 import { intervalMsToPxPerFrame } from '@/lib/speed';
 import styles from './App.module.css';
 
@@ -92,6 +93,10 @@ export default function App() {
       }
     };
   }, []);
+
+  // Keep the screen awake while reading a surah. Picker is a brief navigation
+  // step so no lock is needed there.
+  useWakeLock(selectedSurah !== null);
 
   function handleSelectSurah(surahNumber: number): void {
     setSelectedSurah(surahNumber);
