@@ -1,6 +1,6 @@
 # ADR 0003 — Tajweed data source, client-side parser, and rendering approach
 
-**Status:** Accepted
+**Status:** Superseded by ADR 0005
 **Date:** 2026-05-10
 
 ## Context

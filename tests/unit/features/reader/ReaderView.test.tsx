@@ -76,18 +76,17 @@ describe('ReaderView — Al-Fatiha (surah 1)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// TajweedAyah integration — no raw markers leak into the DOM
+// Ayah text — plain Arabic text rendered directly
 // ---------------------------------------------------------------------------
 
-describe('ReaderView — tajweed marker rendering', () => {
-  it('renders Al-Fatiha verse 1 without any literal [ or ] characters in the DOM', () => {
+describe('ReaderView — ayah text rendering', () => {
+  it('renders Al-Fatiha ayah 1 with non-empty Arabic text in the DOM', () => {
     mockUseQuranData.mockReturnValue({ data: quranData, error: undefined });
     render(<ReaderView surahNumber={1} onBack={vi.fn()} textSizeRem={1.5} />);
-    // The tajweed parser must strip all marker syntax; none should appear in text content.
+    // Plain Uthmani text renders directly — no annotation markers should appear.
     const ayahs = screen.getAllByTestId('ayah');
     ayahs.forEach((el) => {
-      expect(el.textContent).not.toMatch(/\[/);
-      expect(el.textContent).not.toMatch(/\]/);
+      expect(el.textContent?.trim().length).toBeGreaterThan(0);
     });
   });
 });

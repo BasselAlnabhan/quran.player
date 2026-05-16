@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useQuranData } from '@/hooks/useQuranData';
 import { useSwipeBack } from '@/hooks/useSwipeBack';
 import { getSurah } from '@/lib/quran';
-import TajweedAyah from './TajweedAyah';
 import styles from './ReaderView.module.css';
 
 type Props = {
@@ -77,7 +76,7 @@ export default function ReaderView({ surahNumber, onBack, textSizeRem }: Props) 
       <p className={styles.ayahBlock} dir="rtl" lang="ar" style={{ fontSize: `${textSizeRem}rem` }}>
         {surah.ayahs.map((ayah) => (
           <span key={ayah.number} data-testid="ayah">
-            <TajweedAyah text={ayah.text} />
+            {ayah.text}
             {' '}
             <span className={styles.ayahNumber}>({ayah.number})</span>
             {' '}
